@@ -1,0 +1,12 @@
+# IntelliJ related
+
+.idea/
+*.iml
+
+# VSCode
+
+.vscode/
+
+# Obsidian
+
+.obsidian/
