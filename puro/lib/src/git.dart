@@ -190,7 +190,7 @@ class GitClient {
       if (track) '--track',
       if (force) '-f',
       if (newBranch != null) ...['-b', newBranch],
-      if (ref != null) ref,
+      ?ref,
     ], directory: repository);
     _ensureSuccess(result);
   }
@@ -212,7 +212,7 @@ class GitClient {
       if (hard) '--hard',
       if (merge) '--merge',
       if (keep) '--keep',
-      if (ref != null) ref,
+      ?ref,
     ], directory: repository);
     _ensureSuccess(result);
   }
@@ -234,7 +234,7 @@ class GitClient {
       if (hard) '--hard',
       if (merge) '--merge',
       if (keep) '--keep',
-      if (ref != null) ref,
+      ?ref,
     ], directory: repository);
     return result.exitCode == 0;
   }
@@ -247,7 +247,7 @@ class GitClient {
   }) async {
     final result = await raw([
       'pull',
-      if (remote != null) remote,
+      ?remote,
       if (all) '--all',
     ], directory: repository);
     _ensureSuccess(result);
@@ -266,7 +266,7 @@ class GitClient {
       if (all) '--all',
       if (updateHeadOk) '--update-head-ok',
       if (!all) remote,
-      if (ref != null) ref,
+      ?ref,
     ], directory: repository);
     _ensureSuccess(result);
   }
@@ -892,15 +892,9 @@ class GitTagVersion {
     }
 
     final List<String?> matchGroups = match.groups(<int>[1, 2, 3, 4, 5, 6]);
-    final int? x = matchGroups[0] == null
-        ? null
-        : int.tryParse(matchGroups[0]!);
-    final int? y = matchGroups[1] == null
-        ? null
-        : int.tryParse(matchGroups[1]!);
-    final int? z = matchGroups[2] == null
-        ? null
-        : int.tryParse(matchGroups[2]!);
+    final int? x = matchGroups[0] == null ? null : int.tryParse(matchGroups[0]!);
+    final int? y = matchGroups[1] == null ? null : int.tryParse(matchGroups[1]!);
+    final int? z = matchGroups[2] == null ? null : int.tryParse(matchGroups[2]!);
     final String? devString = matchGroups[3];
     int? devVersion, devPatch;
     if (devString != null) {
@@ -912,9 +906,7 @@ class GitTagVersion {
       devPatch = devGroups?[1] == null ? null : int.tryParse(devGroups![1]!);
     }
     // count of commits past last tagged version
-    final int? commits = matchGroups[4] == null
-        ? 0
-        : int.tryParse(matchGroups[4]!);
+    final int? commits = matchGroups[4] == null ? 0 : int.tryParse(matchGroups[4]!);
     final String? hash = matchGroups[5];
 
     return GitTagVersion(

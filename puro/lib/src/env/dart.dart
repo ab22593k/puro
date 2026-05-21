@@ -23,13 +23,12 @@ enum DartOS {
   macOS,
   linux;
 
-  static final DartOS current = Platform.isWindows
-      ? DartOS.windows
-      : Platform.isMacOS
-      ? DartOS.macOS
-      : Platform.isLinux
-      ? DartOS.linux
-      : throw UnsupportedError('Unsupported platform');
+  static final DartOS current = switch (Platform.operatingSystem) {
+    'windows' => DartOS.windows,
+    'macos' => DartOS.macOS,
+    'linux' => DartOS.linux,
+    _ => throw UnsupportedError('Unsupported platform'),
+  };
 }
 
 enum DartArch {
@@ -67,8 +66,7 @@ class DartReleases {
   DartReleases(this.releases);
   final Map<DartChannel, List<Version>> releases;
   Map<String, dynamic> toJson() => {
-    for (final channel in releases.keys)
-      channel.name: releases[channel]!.map((v) => '$v').toList(),
+    for (final channel in releases.keys) channel.name: releases[channel]!.map((v) => '$v').toList(),
   };
   factory DartReleases.fromJson(Map<String, dynamic> json) => DartReleases({
     for (final channel in json.keys)
@@ -120,8 +118,7 @@ Future<DartReleases?> getCachedDartReleases({
   final config = PuroConfig.of(scope);
   final stat = config.cachedDartReleasesJsonFile.statSync();
   if (stat.type == FileSystemEntityType.notFound ||
-      (unlessStale &&
-          clock.now().difference(stat.modified) > const Duration(hours: 1))) {
+      (unlessStale && clock.now().difference(stat.modified) > const Duration(hours: 1))) {
     return null;
   }
   final content = await readAtomic(
@@ -138,9 +135,7 @@ Future<DartReleases> getDartReleases({required Scope scope}) async {
 
   final cachedReleasesStat = config.cachedDartReleasesJsonFile.statSync();
   final hasCache = cachedReleasesStat.type == FileSystemEntityType.file;
-  var cacheIsFresh =
-      hasCache &&
-      clock.now().difference(cachedReleasesStat.modified).inHours < 1;
+  var cacheIsFresh = hasCache && clock.now().difference(cachedReleasesStat.modified).inHours < 1;
 
   // Don't read from the cache if it's stale.
   if (hasCache && cacheIsFresh) {

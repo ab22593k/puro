@@ -117,9 +117,7 @@ Future<void> ensureWindowsDebuggerInstalled({required Scope scope}) async {
   final win10sdkPath = config.fileSystem.directory(
     vs.getWindows10SdkLocation()!,
   );
-  final debuggersDir = win10sdkPath
-      .childDirectory('Debuggers')
-      .childDirectory('x86');
+  final debuggersDir = win10sdkPath.childDirectory('Debuggers').childDirectory('x86');
   final dbghelpFile = debuggersDir.childFile('dbghelp.dll');
   log.d('dbghelpFile: $dbghelpFile');
   await ProgressNode.of(scope).wrap((scope, node) async {
@@ -153,8 +151,7 @@ Future<void> ensureWindowsDebuggerInstalled({required Scope scope}) async {
         }
       }
 
-      final dependencyList =
-          (jsonDecode(result.stdout as String) as List<dynamic>).toList();
+      final dependencyList = (jsonDecode(result.stdout as String) as List<dynamic>).toList();
       dependencyList.removeWhere(
         (dynamic e) =>
             e['Version'] == null ||
@@ -166,10 +163,7 @@ Future<void> ensureWindowsDebuggerInstalled({required Scope scope}) async {
       if (dependencyList.isNotEmpty) {
         final dynamic dependency = dependencyList.reduce(
           (dynamic a, dynamic b) =>
-              compareVersions(a['Version'] as String, b['Version'] as String) >
-                  0
-              ? a
-              : b,
+              compareVersions(a['Version'] as String, b['Version'] as String) > 0 ? a : b,
         );
         final dependencyKey = dependency['PSChildName'] as String;
         log.d('dependencyKey: $dependencyKey');
@@ -238,8 +232,7 @@ Future<void> ensureWindowsPythonInstalled({required Scope scope}) async {
   for (var i = 0; i < pythonPrograms.length; i++) {
     final program = pythonPrograms[i];
     final parent = program.parent;
-    if (parent.basename == 'WindowsApps' &&
-        parent.parent.basename == 'Microsoft') {
+    if (parent.basename == 'WindowsApps' && parent.parent.basename == 'Microsoft') {
       // Double check that the executable is indeed useless before deleting.
       final result = await runProcess(scope, program.path, [
         '-V',

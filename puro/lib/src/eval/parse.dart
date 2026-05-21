@@ -9,8 +9,8 @@ import 'package:analyzer/diagnostic/diagnostic.dart';
 import 'package:analyzer/error/listener.dart';
 import 'package:analyzer/exception/exception.dart';
 import 'package:analyzer/source/line_info.dart';
-import 'package:analyzer/src/dart/scanner/reader.dart';
 import 'package:analyzer/src/dart/scanner/scanner.dart';
+import 'package:analyzer/src/diagnostic/diagnostic.dart' as analyzer_diagnostic;
 import 'package:analyzer/src/generated/parser.dart';
 import 'package:analyzer/src/string_source.dart';
 import 'package:pub_semver/pub_semver.dart';
@@ -82,10 +82,10 @@ ParseResult<T> parseDart<T extends AstNode>(
   T Function(Parser parser) fn,
 ) {
   final source = StringSource(code, '/eval.dart');
-  final scanErrors = _ErrorListener();
-  final reader = CharSequenceReader(code);
+  final scanListener = _ErrorListener();
+  final scanReporter = DiagnosticReporter(scanListener, source);
   final featureSet = FeatureSet.latestLanguageVersion();
-  final scanner = Scanner(source, reader, scanErrors)
+  final scanner = Scanner(code, scanReporter)
     ..configureFeatures(
       featureSetForOverriding: featureSet,
       featureSet: featureSet,
@@ -99,14 +99,14 @@ ParseResult<T> parseDart<T extends AstNode>(
       scanException: CaughtException(exception, stackTrace),
     );
   }
-  final parseErrors = _ErrorListener();
+  final parseListener = _ErrorListener();
+  final parseReporter = DiagnosticReporter(parseListener, source);
   late final parser = Parser(
-    source,
+    parseReporter,
     languageVersion: LibraryLanguageVersion(
       package: Version(0, 0, 0),
       override: null,
     ),
-    parseErrors,
     featureSet: featureSet,
     lineInfo: LineInfo.fromContent(code),
   )..currentToken = token;
@@ -115,8 +115,8 @@ ParseResult<T> parseDart<T extends AstNode>(
     code: code,
     node: node,
     token: token,
-    scanErrors: scanErrors.errors,
-    parseErrors: parseErrors.errors,
+    scanErrors: scanListener.errors,
+    parseErrors: parseListener.errors,
     exhaustive: parser.currentToken.isEof,
   );
 }
@@ -140,7 +140,7 @@ ParseResult<Block> parseDartBlock(String code) => parseDart(
   (parser) =>
       (parser.parseFunctionBody(
                 false,
-                ParserErrorCode.missingFunctionBody,
+                analyzer_diagnostic.missingFunctionBody,
                 false,
               )
               as BlockFunctionBody)

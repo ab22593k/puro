@@ -113,8 +113,7 @@ class LsVersionsCommand extends PuroCommand {
       }
 
       final formattedReleases = <String, List<List<String>>>{
-        for (final entry in channelReleases.entries)
-          entry.key: formatReleases(entry.value),
+        for (final entry in channelReleases.entries) entry.key: formatReleases(entry.value),
       };
 
       final colWidths = List.generate(
@@ -136,7 +135,7 @@ class LsVersionsCommand extends PuroCommand {
         for (final entry in formattedReleases.entries) ...[
           'Latest ${entry.key} releases:',
           for (final row in entry.value)
-            '${row.mapWithIndex((s, i) => padRightColored(s, colWidths[i])).join()}',
+            row.mapWithIndex((s, i) => padRightColored(s, colWidths[i])).join(),
           '',
         ],
       ].join('\n').trim();

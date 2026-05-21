@@ -8,10 +8,7 @@ extension CommandResultModelExtensions on CommandResultModel {
   void addMessage(CommandMessage message, OutputFormatter format) {
     messages.add(
       CommandMessageModel(
-        type:
-            (message.type ??
-                    (success ? CompletionType.success : CompletionType.failure))
-                .name,
+        type: (message.type ?? (success ? CompletionType.success : CompletionType.failure)).name,
         message: message.message(format),
       ),
     );
@@ -71,9 +68,7 @@ class CommandHelpResult extends CommandResult {
     if (usage != null)
       CommandMessage(
         usage!,
-        type: message == null && didRequestHelp
-            ? CompletionType.plain
-            : CompletionType.info,
+        type: message == null && didRequestHelp ? CompletionType.plain : CompletionType.info,
       ),
   ];
 
@@ -109,6 +104,10 @@ class BasicMessageResult extends CommandResult {
   final CommandResultModel? model;
 }
 
+/// The result of executing a puro command.
+///
+/// Subclasses define the [success] status, user-facing [messages], and optional
+/// structured [model] (a protobuf [CommandResultModel]) for JSON serialization.
 abstract class CommandResult {
   bool get success;
 
@@ -152,9 +151,7 @@ class CommandMessage {
         .map(
           (e) => format.complete(
             e.message(format),
-            type:
-                e.type ??
-                (success ? CompletionType.success : CompletionType.failure),
+            type: e.type ?? (success ? CompletionType.success : CompletionType.failure),
           ),
         )
         .join('\n');

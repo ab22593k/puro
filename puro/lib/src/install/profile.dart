@@ -54,11 +54,7 @@ Future<CommandMessage?> detectExternalFlutterInstallations({
   offending.remove(config.puroFlutterShimFile.path);
   offending.remove(config.puroExecutableFile.path);
 
-  final defaultEnvBinDir = config
-      .getEnv('default', resolve: false)
-      .flutter
-      .binDir
-      .path;
+  final defaultEnvBinDir = config.getEnv('default', resolve: false).flutter.binDir.path;
   offending.removeWhere((e) => path.equals(path.dirname(e), defaultEnvBinDir));
 
   log.d('defaultEnvBinDir: $defaultEnvBinDir');
@@ -142,8 +138,7 @@ Future<File?> installProfileEnv({
       for (final path in config.desiredEnvPaths)
         'export PATH="\$PATH:${path.replaceAll(home, '\$HOME')}"',
       'export PURO_ROOT="${config.puroRoot.path}"',
-      if (config.legacyPubCache)
-        'export PUB_CACHE="${config.legacyPubCacheDir.path}"',
+      if (config.legacyPubCache) 'export PUB_CACHE="${config.legacyPubCacheDir.path}"',
     ],
   );
   return result ? file : null;
@@ -248,10 +243,7 @@ Future<String?> readWindowsRegistryValue({
   if (result.exitCode != 0) {
     return null;
   }
-  final lines = (result.stdout as String)
-      .replaceAll('\r\n', '\n')
-      .trim()
-      .split('\n');
+  final lines = (result.stdout as String).replaceAll('\r\n', '\n').trim().split('\n');
   if (lines.length != 2) {
     return null;
   }
@@ -386,7 +378,9 @@ Future<bool> tryUpdateWindowsPath({required Scope scope}) async {
   );
   final paths = (currentPath ?? '').split(';');
   if (config.desiredEnvPaths.any((e) => !paths.contains(e))) {
-    while (paths.isNotEmpty && paths.last.isEmpty) paths.removeLast();
+    while (paths.isNotEmpty && paths.last.isEmpty) {
+      paths.removeLast();
+    }
     paths.removeWhere(config.desiredEnvPaths.contains);
     paths.addAll(config.desiredEnvPaths);
     env['Path'] = paths.join(';');

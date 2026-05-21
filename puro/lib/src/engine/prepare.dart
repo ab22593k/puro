@@ -82,9 +82,7 @@ Future<void> prepareEngine({
         .childDirectory('objects')
         .childDirectory('info')
         .childFile('alternates');
-    final sharedObjects = sharedRepository
-        .childDirectory('.git')
-        .childDirectory('objects');
+    final sharedObjects = sharedRepository.childDirectory('.git').childDirectory('objects');
     alternatesFile.writeAsStringSync('${sharedObjects.path}\n');
     await git.syncRemotes(repository: repository, remotes: remotes);
     await git.checkout(repository: repository, ref: ref);
@@ -120,22 +118,18 @@ cache_dir = ${jsonEncode(config.sharedGClientDir.path)}
 
     final logFile = environment.engineRootDir.childFile('gclient.log');
     final logSink = logFile.openWrite(mode: FileMode.append);
-    final stdoutFuture = proc.stdout
-        .transform(utf8.decoder)
-        .transform(const LineSplitter())
-        .listen((line) {
-          log.d('gclient: $line');
-          logSink.writeln(line);
-        })
-        .asFuture();
-    final stderrFuture = proc.stderr
-        .transform(utf8.decoder)
-        .transform(const LineSplitter())
-        .listen((line) {
-          log.d('(E) gclient: $line');
-          logSink.writeln(line);
-        })
-        .asFuture();
+    final stdoutFuture = proc.stdout.transform(utf8.decoder).transform(const LineSplitter()).listen(
+      (line) {
+        log.d('gclient: $line');
+        logSink.writeln(line);
+      },
+    ).asFuture<void>();
+    final stderrFuture = proc.stderr.transform(utf8.decoder).transform(const LineSplitter()).listen(
+      (line) {
+        log.d('(E) gclient: $line');
+        logSink.writeln(line);
+      },
+    ).asFuture<void>();
 
     final exitCode = await proc.exitCode;
     await stdoutFuture;

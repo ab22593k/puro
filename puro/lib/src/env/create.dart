@@ -15,9 +15,18 @@ import '../provider.dart';
 import '../terminal.dart';
 import 'default.dart';
 import 'engine.dart';
+
 import 'env_shims.dart';
 import 'flutter_tool.dart';
 import 'version.dart';
+
+void _ensureExactlyOneProvided(Object? a, Object? b) {
+  if ((a == null) == (b == null)) {
+    throw AssertionError(
+      'Exactly one of flutterVersion and forkRemoteUrl should be provided',
+    );
+  }
+}
 
 class EnvCreateResult extends CommandResult {
   EnvCreateResult({required this.success, required this.environment});
@@ -51,8 +60,7 @@ Future<void> updateEngineVersionFile({
 
   // Write back the engine version file, if the engine stamp file exists.
   if (flutterConfig.cache.engineStampFile.existsSync()) {
-    final engineVersion = flutterConfig.cache.engineStampFile
-        .readAsStringSync();
+    final engineVersion = flutterConfig.cache.engineStampFile.readAsStringSync();
     flutterConfig.engineVersionFile.writeAsStringSync(engineVersion);
     return;
   }
@@ -207,11 +215,7 @@ Future<EnvCreateResult> createEnvironment({
   String? forkRemoteUrl,
   String? forkRef,
 }) async {
-  if ((flutterVersion == null) == (forkRemoteUrl == null)) {
-    throw AssertionError(
-      'Exactly one of flutterVersion and forkRemoteUrl should be provided',
-    );
-  }
+  _ensureExactlyOneProvided(flutterVersion, forkRemoteUrl);
 
   if (isValidVersion(envName) &&
       (flutterVersion == null ||
@@ -301,8 +305,7 @@ Future<EnvCreateResult> createEnvironment({
 
     if (cacheEngineTime != null) {
       final wouldveTaken =
-          (cloneTime.difference(startTime)) +
-          (cacheEngineTime!.difference(startTime));
+          (cloneTime.difference(startTime)) + (cacheEngineTime!.difference(startTime));
       final took = clock.now().difference(startTime);
       log.v(
         'Saved ${(wouldveTaken - took).inMilliseconds}ms by pre-caching engine',
@@ -361,11 +364,7 @@ Future<void> cloneFlutterWithSharedRefs({
   log.d('forkRemoteUrl: $flutterVersion');
   log.d('forkRef: $forkRef');
 
-  if ((flutterVersion == null) == (forkRemoteUrl == null)) {
-    throw AssertionError(
-      'Exactly one of flutterVersion and forkRemoteUrl should be provided',
-    );
-  }
+  _ensureExactlyOneProvided(flutterVersion, forkRemoteUrl);
 
   final sharedRepository = config.sharedFlutterDir;
 
@@ -388,9 +387,7 @@ Future<void> cloneFlutterWithSharedRefs({
         .childDirectory('objects')
         .childDirectory('info')
         .childFile('alternates');
-    final sharedObjects = sharedRepository
-        .childDirectory('.git')
-        .childDirectory('objects');
+    final sharedObjects = sharedRepository.childDirectory('.git').childDirectory('objects');
     alternatesFile.writeAsStringSync('${sharedObjects.path}\n');
     await git.syncRemotes(repository: repository, remotes: remotes);
 

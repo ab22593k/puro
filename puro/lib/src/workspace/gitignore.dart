@@ -28,9 +28,10 @@ Future<void> updateConfigLines({
       i++;
     }
   }
-  while (result.isNotEmpty && result.last.isEmpty) result.removeLast();
-  if (!existingLines.containsAll(lines) ||
-      existingLines.length != lines.length) {
+  while (result.isNotEmpty && result.last.isEmpty) {
+    result.removeLast();
+  }
+  if (!existingLines.containsAll(lines) || existingLines.length != lines.length) {
     log.v('Updating config at ${file.path}');
     file.writeAsStringSync(
       <String>[
@@ -103,10 +104,7 @@ Future<void> updateGitAttributes({
   if (gitTree == null) return;
   await updateConfigLines(
     scope: scope,
-    file: gitTree
-        .childDirectory('.git')
-        .childDirectory('info')
-        .childFile('attributes'),
+    file: gitTree.childDirectory('.git').childDirectory('info').childFile('attributes'),
     lines: {
       for (final entry in attributes.entries) '${entry.key} ${entry.value}',
     },

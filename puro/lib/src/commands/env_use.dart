@@ -17,8 +17,7 @@ class EnvUseCommand extends PuroCommand {
     );
     argParser.addFlag(
       'intellij',
-      help:
-          'Enable or disable generation of IntelliJ (or Android Studio) configs',
+      help: 'Enable or disable generation of IntelliJ (or Android Studio) configs',
     );
     argParser.addFlag(
       'global',
@@ -71,9 +70,7 @@ class EnvUseCommand extends PuroCommand {
         'Set global default environment to `${env.name}`',
       );
     }
-    var vscodeOverride = argResults!.wasParsed('vscode')
-        ? argResults!['vscode'] as bool
-        : null;
+    var vscodeOverride = argResults!.wasParsed('vscode') ? argResults!['vscode'] as bool : null;
     if (vscodeOverride == null && await isRunningInVscode(scope: scope)) {
       vscodeOverride = true;
     }
@@ -81,9 +78,7 @@ class EnvUseCommand extends PuroCommand {
       scope: scope,
       envName: envName,
       vscode: vscodeOverride,
-      intellij: argResults!.wasParsed('intellij')
-          ? argResults!['intellij'] as bool
-          : null,
+      intellij: argResults!.wasParsed('intellij') ? argResults!['intellij'] as bool : null,
       projectConfig: config.project,
     );
     return BasicMessageResult('Switched to environment `${environment.name}`');

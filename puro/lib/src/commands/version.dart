@@ -44,8 +44,8 @@ class VersionCommand extends PuroCommand {
       alwaysNotify: true,
     );
     return BasicMessageResult.list([
-      if (externalMessage != null) externalMessage,
-      if (updateMessage != null) updateMessage,
+      ?externalMessage,
+      ?updateMessage,
       CommandMessage(
         'Puro ${puroVersion.semver} '
         '(${puroVersion.type.name}/${puroVersion.target.name})\n'

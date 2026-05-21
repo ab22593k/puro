@@ -213,29 +213,27 @@ extension NumExtensions on num {
       return 'NaN';
     }
 
-    if (this == 0) {
-      return pretty(precision: 0, plusSign: plusSign, minusSign: minusSign);
-    } else if (this < 1) {
-      return pretty(precision: 1, plusSign: plusSign, minusSign: minusSign);
-    } else if (this < 100) {
-      return pretty(precision: 0, plusSign: plusSign, minusSign: minusSign);
-    } else if (this < 5000 /* 5K */ ) {
-      return '${(this / 1000).pretty(precision: 1, plusSign: plusSign, minusSign: minusSign)}K';
-    } else if (this < 500000 /* 500K */ ) {
-      return '${(this / 1000).pretty(precision: 0, plusSign: plusSign, minusSign: minusSign)}K';
-    } else if (this < 5000000 /* 5M  */ ) {
-      return '${(this / 1000000).pretty(precision: 1, plusSign: plusSign, minusSign: minusSign)}M';
-    } else if (this < 500000000 /* 500M */ ) {
-      return '${(this / 1000000).pretty(precision: 0, plusSign: plusSign, minusSign: minusSign)}M';
-    } else if (this < 5000000000 /* 5B */ ) {
-      return '${(this / 1000000000).pretty(precision: 1, plusSign: plusSign, minusSign: minusSign)}${metric ? 'G' : 'B'}';
-    } else if (this < 500000000000 /* 500B */ ) {
-      return '${(this / 1000000000).pretty(precision: 0, plusSign: plusSign, minusSign: minusSign)}${metric ? 'G' : 'B'}';
-    } else if (this < 5000000000000 /* 5T */ ) {
-      return '${(this / 1000000000000).pretty(precision: 1, plusSign: plusSign, minusSign: minusSign)}T';
-    } else {
-      return '${(this / 1000000000000).pretty(precision: 0, plusSign: plusSign, minusSign: minusSign)}T';
-    }
+    return switch (this) {
+      == 0 => pretty(precision: 0, plusSign: plusSign, minusSign: minusSign),
+      < 1 => pretty(precision: 1, plusSign: plusSign, minusSign: minusSign),
+      < 100 => pretty(precision: 0, plusSign: plusSign, minusSign: minusSign),
+      < 5000 =>
+        '${(this / 1000).pretty(precision: 1, plusSign: plusSign, minusSign: minusSign)}${metric ? 'k' : 'K'}',
+      < 500000 =>
+        '${(this / 1000).pretty(precision: 0, plusSign: plusSign, minusSign: minusSign)}${metric ? 'k' : 'K'}',
+      < 5000000 =>
+        '${(this / 1000000).pretty(precision: 1, plusSign: plusSign, minusSign: minusSign)}M',
+      < 500000000 =>
+        '${(this / 1000000).pretty(precision: 0, plusSign: plusSign, minusSign: minusSign)}M',
+      < 5000000000 =>
+        '${(this / 1000000000).pretty(precision: 1, plusSign: plusSign, minusSign: minusSign)}${metric ? 'G' : 'B'}',
+      < 500000000000 =>
+        '${(this / 1000000000).pretty(precision: 0, plusSign: plusSign, minusSign: minusSign)}${metric ? 'G' : 'B'}',
+      < 5000000000000 =>
+        '${(this / 1000000000000).pretty(precision: 1, plusSign: plusSign, minusSign: minusSign)}T',
+      _ =>
+        '${(this / 1000000000000).pretty(precision: 0, plusSign: plusSign, minusSign: minusSign)}T',
+    };
   }
 }
 
@@ -269,23 +267,17 @@ extension DurationExtensions on Duration {
       return '$t${abbr ? a : ' $n${t != 1 ? 's' : ''}'}';
     }
 
-    if (s < 1) {
-      return '${c('millisecond', 'ms')}$sr';
-    } else if (s < 60) {
-      return '${c('second', 's')}$sr';
-    } else if (s < 3600) {
-      return '${c('minute', 'm')}$sr';
-    } else if (s < 86400) {
-      return '${c('hour', 'h')}$sr';
-    } else if (s < 604800) {
-      return '${c('day', 'd')}$sr';
-    } else if (s < 2629800) {
-      return '${c('week', 'w')}$sr';
-    } else if (s < 31556952) {
-      return '${c('month', 'mo')}$sr';
-    } else {
-      return '${c('year', 'y')}$sr';
-    }
+    final label = switch (s) {
+      < 1 => c('millisecond', 'ms'),
+      < 60 => c('second', 's'),
+      < 3600 => c('minute', 'm'),
+      < 86400 => c('hour', 'h'),
+      < 604800 => c('day', 'd'),
+      < 2629800 => c('week', 'w'),
+      < 31556952 => c('month', 'mo'),
+      _ => c('year', 'y'),
+    };
+    return '$label$sr';
   }
 }
 

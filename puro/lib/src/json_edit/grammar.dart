@@ -3,8 +3,7 @@ import 'package:petitparser/petitparser.dart';
 import 'element.dart';
 
 class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
-  static Token<JsonElement> parse(String input) =>
-      JsonGrammar().build().parse(input).value;
+  static Token<JsonElement> parse(String input) => JsonGrammar().build().parse(input).value;
 
   @override
   Parser<Token<JsonElement>> start() => ref0(element).end();
@@ -20,8 +19,7 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
   }
 
   Parser<String> inlineComment() {
-    return (string('/*') & any().starLazy(string('*/')) & string('*/'))
-        .flatten();
+    return (string('/*') & any().starLazy(string('*/')) & string('*/')).flatten();
   }
 
   Parser<String> space() {
@@ -49,22 +47,18 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
     });
   }
 
-  Parser<String> escapedChar() =>
-      (char(r'\') & pattern(escapeChars.keys.join()))
-          .pick(1)
-          .map((Object? str) => escapeChars[str]!);
+  Parser<String> escapedChar() => (char(r'\') & pattern(escapeChars.keys.join()))
+      .pick(1)
+      .map((Object? str) => escapeChars[str]!);
 
-  Parser<String> unicodeChar() =>
-      (string(r'\u') & pattern('0-9A-Fa-f').times(4)).map((digits) {
-        final charCode = int.parse((digits[1] as List).join(), radix: 16);
-        return String.fromCharCode(charCode);
-      });
+  Parser<String> unicodeChar() => (string(r'\u') & pattern('0-9A-Fa-f').times(4)).map((digits) {
+    final charCode = int.parse((digits[1] as List).join(), radix: 16);
+    return String.fromCharCode(charCode);
+  });
 
   Parser<String> stringLiteral() {
     return (char('"') &
-            (pattern(r'^"\') |
-                    ref0<String>(escapedChar) |
-                    ref0<String>(unicodeChar))
+            (pattern(r'^"\') | ref0<String>(escapedChar) | ref0<String>(unicodeChar))
                 .star()
                 .map<String>((list) => list.join()) &
             char('"'))
@@ -109,9 +103,7 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
               char('}'))
           .map((res) {
             return JsonMap(
-              children: (res[1] as List? ?? <Object?>[])
-                  .cast<Token<JsonMapEntry>>()
-                  .toList(),
+              children: (res[1] as List? ?? <Object?>[]).cast<Token<JsonMapEntry>>().toList(),
               space: res[2] as String,
             );
           }),
@@ -130,9 +122,7 @@ class JsonGrammar extends GrammarDefinition<Token<JsonElement>> {
               char(']'))
           .map((res) {
             return JsonArray(
-              children: (res[1] as List? ?? <Object?>[])
-                  .cast<Token<JsonElement>>()
-                  .toList(),
+              children: (res[1] as List? ?? <Object?>[]).cast<Token<JsonElement>>().toList(),
               space: res[2] as String,
             );
           }),

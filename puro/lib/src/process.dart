@@ -26,8 +26,7 @@ Future<Process> startProcess(
   final log = PuroLogger.of(scope);
   if (rosettaWorkaround && Platform.isMacOS) {
     final engineInfo = await scope.read(EngineBuildTarget.provider);
-    if (engineInfo.os == EngineOS.macOS &&
-        engineInfo.arch == EngineArch.arm64) {
+    if (engineInfo.os == EngineOS.macOS && engineInfo.arch == EngineArch.arm64) {
       log.d('querying arch of $executable');
       final fileResult = await runProcess(scope, 'file', [
         executable,
@@ -107,8 +106,7 @@ Future<ProcessResult> runProcess(
   final resultStdout = result.stdout as String;
   final resultStderr = result.stderr as String;
   if (result.exitCode != 0) {
-    final message =
-        '$executable subprocess failed with exit code ${result.exitCode}';
+    final message = '$executable subprocess failed with exit code ${result.exitCode}';
     if (throwOnFailure) {
       if (resultStdout.isNotEmpty) log.v('$executableName: $resultStdout');
       if (resultStderr.isNotEmpty) log.e('$executableName: $resultStderr');
@@ -157,8 +155,7 @@ ProcessResult runProcessSync(
   final resultStdout = result.stdout as String;
   final resultStderr = result.stderr as String;
   if (result.exitCode != 0) {
-    final message =
-        '$executable subprocess failed with exit code ${result.exitCode}';
+    final message = '$executable subprocess failed with exit code ${result.exitCode}';
     if (throwOnFailure) {
       if (resultStdout.isNotEmpty) log.v('$executableName: $resultStdout');
       if (resultStderr.isNotEmpty) log.e('$executableName: $resultStderr');
@@ -215,10 +212,7 @@ Future<ProcessResult?> runProcessWithTimeout(
   });
 
   void onDone() {
-    if (!stdoutDone ||
-        !stderrDone ||
-        exitCode == null ||
-        completer.isCompleted) {
+    if (!stdoutDone || !stderrDone || exitCode == null || completer.isCompleted) {
       return;
     }
     timer.cancel();

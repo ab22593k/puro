@@ -31,12 +31,12 @@ const FlutterReleaseModel$json = {
 };
 
 /// Descriptor for `FlutterReleaseModel`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List flutterReleaseModelDescriptor = $convert.base64Decode(
-    'ChNGbHV0dGVyUmVsZWFzZU1vZGVsEhIKBGhhc2gYASABKAlSBGhhc2gSGAoHY2hhbm5lbBgCIA'
-    'EoCVIHY2hhbm5lbBIYCgd2ZXJzaW9uGAMgASgJUgd2ZXJzaW9uEigKEGRhcnRfc2RrX3ZlcnNp'
-    'b24YBCABKAlSDmRhcnRTZGtWZXJzaW9uEiIKDWRhcnRfc2RrX2FyY2gYBSABKAlSC2RhcnRTZG'
-    'tBcmNoEiEKDHJlbGVhc2VfZGF0ZRgGIAEoCVILcmVsZWFzZURhdGUSGAoHYXJjaGl2ZRgHIAEo'
-    'CVIHYXJjaGl2ZRIWCgZzaGEyNTYYCCABKAlSBnNoYTI1Ng==');
+final $typed_data.Uint8List flutterReleaseModelDescriptor = $convert
+    .base64Decode('ChNGbHV0dGVyUmVsZWFzZU1vZGVsEhIKBGhhc2gYASABKAlSBGhhc2gSGAoHY2hhbm5lbBgCIA'
+        'EoCVIHY2hhbm5lbBIYCgd2ZXJzaW9uGAMgASgJUgd2ZXJzaW9uEigKEGRhcnRfc2RrX3ZlcnNp'
+        'b24YBCABKAlSDmRhcnRTZGtWZXJzaW9uEiIKDWRhcnRfc2RrX2FyY2gYBSABKAlSC2RhcnRTZG'
+        'tBcmNoEiEKDHJlbGVhc2VfZGF0ZRgGIAEoCVILcmVsZWFzZURhdGUSGAoHYXJjaGl2ZRgHIAEo'
+        'CVIHYXJjaGl2ZRIWCgZzaGEyNTYYCCABKAlSBnNoYTI1Ng==');
 
 @$core.Deprecated('Use flutterReleasesModelDescriptor instead')
 const FlutterReleasesModel$json = {
@@ -51,14 +51,7 @@ const FlutterReleasesModel$json = {
       '6': '.FlutterReleasesModel.CurrentReleaseEntry',
       '10': 'currentRelease'
     },
-    {
-      '1': 'releases',
-      '3': 3,
-      '4': 3,
-      '5': 11,
-      '6': '.FlutterReleaseModel',
-      '10': 'releases'
-    },
+    {'1': 'releases', '3': 3, '4': 3, '5': 11, '6': '.FlutterReleaseModel', '10': 'releases'},
   ],
   '3': [FlutterReleasesModel_CurrentReleaseEntry$json],
 };
@@ -74,9 +67,9 @@ const FlutterReleasesModel_CurrentReleaseEntry$json = {
 };
 
 /// Descriptor for `FlutterReleasesModel`. Decode as a `google.protobuf.DescriptorProto`.
-final $typed_data.Uint8List flutterReleasesModelDescriptor = $convert.base64Decode(
-    'ChRGbHV0dGVyUmVsZWFzZXNNb2RlbBIZCghiYXNlX3VybBgBIAEoCVIHYmFzZVVybBJSCg9jdX'
-    'JyZW50X3JlbGVhc2UYAiADKAsyKS5GbHV0dGVyUmVsZWFzZXNNb2RlbC5DdXJyZW50UmVsZWFz'
-    'ZUVudHJ5Ug5jdXJyZW50UmVsZWFzZRIwCghyZWxlYXNlcxgDIAMoCzIULkZsdXR0ZXJSZWxlYX'
-    'NlTW9kZWxSCHJlbGVhc2VzGkEKE0N1cnJlbnRSZWxlYXNlRW50cnkSEAoDa2V5GAEgASgJUgNr'
-    'ZXkSFAoFdmFsdWUYAiABKAlSBXZhbHVlOgI4AQ==');
+final $typed_data.Uint8List flutterReleasesModelDescriptor = $convert
+    .base64Decode('ChRGbHV0dGVyUmVsZWFzZXNNb2RlbBIZCghiYXNlX3VybBgBIAEoCVIHYmFzZVVybBJSCg9jdX'
+        'JyZW50X3JlbGVhc2UYAiADKAsyKS5GbHV0dGVyUmVsZWFzZXNNb2RlbC5DdXJyZW50UmVsZWFz'
+        'ZUVudHJ5Ug5jdXJyZW50UmVsZWFzZRIwCghyZWxlYXNlcxgDIAMoCzIULkZsdXR0ZXJSZWxlYX'
+        'NlTW9kZWxSCHJlbGVhc2VzGkEKE0N1cnJlbnRSZWxlYXNlRW50cnkSEAoDa2V5GAEgASgJUgNr'
+        'ZXkSFAoFdmFsdWUYAiABKAlSBXZhbHVlOgI4AQ==');

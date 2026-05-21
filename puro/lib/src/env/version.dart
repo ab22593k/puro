@@ -80,20 +80,19 @@ class FlutterVersion {
     }
 
     if (tag != null && tag != '$version' && tag != 'v$version') {
-      return colorize(['tags/$tag', '$commitStr']);
+      return colorize(['tags/$tag', commitStr]);
     } else if (version != null) {
       if (branch != null) {
-        return colorize(['$branch', '$version', '$commitStr']);
+        return colorize(['$branch', '$version', commitStr]);
       } else {
-        return colorize(['$version', '$commitStr']);
+        return colorize(['$version', commitStr]);
       }
     } else {
       return colorize([commitStr]);
     }
   }
 
-  FlutterChannel? get channel =>
-      branch == null ? null : FlutterChannel.parse(branch!);
+  FlutterChannel? get channel => branch == null ? null : FlutterChannel.parse(branch!);
 
   static Future<FlutterVersion> query({
     required Scope scope,
@@ -307,8 +306,7 @@ Future<FlutterVersion?> getEnvironmentFlutterVersion({
           onStdout: stdoutBytes.addAll,
           onStderr: (_) {},
         );
-        final json =
-            jsonDecode(utf8.decode(stdoutBytes)) as Map<String, dynamic>;
+        final json = jsonDecode(utf8.decode(stdoutBytes)) as Map<String, dynamic>;
         final frameworkVersion = json['frameworkVersion'] as String?;
         if (frameworkVersion != null) {
           version = tryParseVersion(frameworkVersion);

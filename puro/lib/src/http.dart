@@ -21,13 +21,11 @@ extension BaseRequestExtensions on BaseRequest {
     bool? persistentConnection,
   }) {
     final request = StreamedRequest(method, url)
-      ..contentLength =
-          contentLength ?? (keepContentLength ? this.contentLength : null)
+      ..contentLength = contentLength ?? (keepContentLength ? this.contentLength : null)
       ..followRedirects = followRedirects ?? this.followRedirects
       ..headers.addAll(headers ?? this.headers)
       ..maxRedirects = maxRedirects ?? this.maxRedirects
-      ..persistentConnection =
-          persistentConnection ?? this.persistentConnection;
+      ..persistentConnection = persistentConnection ?? this.persistentConnection;
 
     if (extraHeaders != null) {
       request.headers.addAll(extraHeaders);
@@ -68,19 +66,16 @@ extension StreamedResponseExtensions on StreamedResponse {
     return StreamedResponse(
       stream ?? this.stream,
       statusCode ?? this.statusCode,
-      contentLength:
-          contentLength ?? (keepContentLength ? this.contentLength : null),
+      contentLength: contentLength ?? (keepContentLength ? this.contentLength : null),
       request: request ?? (keepRequest ? this.request : null),
       headers: {
         ...headers ?? (keepHeaders ? this.headers : const {}),
-        if (extraHeaders != null) ...extraHeaders,
+        ...?extraHeaders,
       },
       isRedirect: isRedirect ?? (keepIsRedirect && this.isRedirect),
       persistentConnection:
-          persistentConnection ??
-          (!keepPersistentConnection || this.persistentConnection),
-      reasonPhrase:
-          reasonPhrase ?? (keepReasonPhrase ? this.reasonPhrase : null),
+          persistentConnection ?? (!keepPersistentConnection || this.persistentConnection),
+      reasonPhrase: reasonPhrase ?? (keepReasonPhrase ? this.reasonPhrase : null),
     );
   }
 }
@@ -140,14 +135,11 @@ class _RequestCopierImpl extends RequestCopier {
     bool? persistentConnection,
   }) {
     final request = StreamedRequest(original.method, original.url)
-      ..contentLength = contentLength == _sentinel
-          ? original.contentLength
-          : contentLength as int?
+      ..contentLength = contentLength == _sentinel ? original.contentLength : contentLength as int?
       ..followRedirects = followRedirects ?? original.followRedirects
       ..headers.addAll(headers ?? original.headers)
       ..maxRedirects = maxRedirects ?? original.maxRedirects
-      ..persistentConnection =
-          persistentConnection ?? original.persistentConnection;
+      ..persistentConnection = persistentConnection ?? original.persistentConnection;
 
     copyRequestBody().listen(
       request.sink.add,
@@ -221,8 +213,7 @@ class AllowIncompleteClient extends BaseClient {
     final response = await innerClient.send(request);
     return response.copyWith(
       stream: response.stream.handleError((Object e) {
-        if (e is ClientException &&
-            e.message == 'Connection closed while receiving data') {
+        if (e is ClientException && e.message == 'Connection closed while receiving data') {
           stderr.writeln('Connection closed prematurely, ignoring');
           return;
         }

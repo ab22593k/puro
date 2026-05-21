@@ -148,8 +148,7 @@ Future<FlutterToolInfo> setUpFlutterTool({
 
   environmentPrefs ??= await environment.readPrefs(scope: scope);
   final shouldPrecompile =
-      !environmentPrefs!.hasPrecompileTool() ||
-      environmentPrefs!.precompileTool;
+      !environmentPrefs!.hasPrecompileTool() || environmentPrefs!.precompileTool;
 
   Future<void> updateTool({required ToolQuirks toolQuirks}) async {
     await ProgressNode.of(scope).wrap((scope, node) async {
@@ -163,17 +162,14 @@ Future<FlutterToolInfo> setUpFlutterTool({
         final usePubExecutable = oldPubExecutable.existsSync();
         final pubProcess = await runProcess(
           scope,
-          usePubExecutable
-              ? oldPubExecutable.path
-              : flutterCache.dartSdk.dartExecutable.path,
+          usePubExecutable ? oldPubExecutable.path : flutterCache.dartSdk.dartExecutable.path,
           [
             if (!usePubExecutable)
               if (toolQuirks.useDeprecatedPub) '__deprecated_pub' else 'pub',
             if (toolQuirks.noAnalytics) '--no-analytics',
             if (toolQuirks.suppressAnalytics) '--suppress-analytics',
             'upgrade',
-            if (!toolQuirks.noAnalytics && !toolQuirks.suppressAnalytics)
-              '--no-precompile',
+            if (!toolQuirks.noAnalytics && !toolQuirks.suppressAnalytics) '--no-precompile',
           ],
           environment: {
             'PUB_ENVIRONMENT': pubEnvironment,
@@ -189,15 +185,13 @@ Future<FlutterToolInfo> setUpFlutterTool({
           final randomizedBackoff =
               backoff +
               Duration(
-                milliseconds: (backoff.inMilliseconds * rand.nextDouble() * 0.5)
-                    .round(),
+                milliseconds: (backoff.inMilliseconds * rand.nextDouble() * 0.5).round(),
               );
           backoff += backoff;
           log.w(
             'Pub upgrade failed, trying again in ${randomizedBackoff.inMilliseconds}ms...',
           );
-          node.description =
-              'Pub upgrade failed, waiting a little before trying again';
+          node.description = 'Pub upgrade failed, waiting a little before trying again';
           await Future<void>.delayed(randomizedBackoff);
         }
       }

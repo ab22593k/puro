@@ -28,7 +28,7 @@ final _fileMutexes = <String, Mutex>{};
 Future<T> lockFile<T>(
   Scope scope,
   File file,
-  Future<T> fn(RandomAccessFile handle), {
+  Future<T> Function(RandomAccessFile handle) fn, {
   FileMode mode = FileMode.read,
   bool? exclusive,
   bool background = false,
@@ -42,9 +42,7 @@ Future<T> lockFile<T>(
   await mutex.acquire();
   try {
     exclusive ??= mode != FileMode.read;
-    final fileLock = exclusive
-        ? FileLock.blockingExclusive
-        : FileLock.blockingShared;
+    final fileLock = exclusive ? FileLock.blockingExclusive : FileLock.blockingShared;
     RandomAccessFile handle;
     try {
       handle = await file.open(mode: mode);
@@ -186,10 +184,9 @@ Future<bool> compareFileBytesAtomic({
   bool prefix = false,
 }) {
   return lockFile(scope, file, (handle) async {
-    if (prefix
-        ? handle.lengthSync() < bytes.length
-        : handle.lengthSync() != bytes.length)
+    if (prefix ? handle.lengthSync() < bytes.length : handle.lengthSync() != bytes.length) {
       return false;
+    }
     return _bytesEqual(await handle.read(bytes.length), bytes);
   });
 }

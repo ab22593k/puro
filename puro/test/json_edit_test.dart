@@ -1,3 +1,4 @@
+import 'package:checks/checks.dart';
 import 'package:puro/src/json_edit/editor.dart';
 import 'package:test/test.dart';
 
@@ -14,7 +15,7 @@ void testUpdate(
 }) {
   final editor = JsonEditor(source: input, indentLevel: 2);
   editor.update(selectors, value, create: create);
-  expect(editor.source, output);
+  check(editor.source).equals(output);
 
   // Test again but nested inside a list:
   final editor2 = JsonEditor(
@@ -22,13 +23,13 @@ void testUpdate(
     indentLevel: 2,
   );
   editor2.update([0, ...selectors], value, create: create);
-  expect(editor2.source, '[\n${_indentString(output, '  ')}\n]');
+  check(editor2.source).equals('[\n${_indentString(output, '  ')}\n]');
 }
 
 void testRemove(String input, List<Object> selectors, String output) {
   final editor = JsonEditor(source: input, indentLevel: 2);
   editor.remove(selectors);
-  expect(editor.source, output);
+  check(editor.source).equals(output);
 
   // Test again but nested inside a list:
   final editor2 = JsonEditor(
@@ -36,7 +37,7 @@ void testRemove(String input, List<Object> selectors, String output) {
     indentLevel: 2,
   );
   editor2.remove([0, ...selectors]);
-  expect(editor2.source, '[\n${_indentString(output, '  ')}\n]');
+  check(editor2.source).equals('[\n${_indentString(output, '  ')}\n]');
 }
 
 void main() {

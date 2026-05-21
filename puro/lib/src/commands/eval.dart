@@ -84,9 +84,7 @@ class EvalCommand extends PuroCommand {
 
     final noCoreImports = argResults!['no-core'] as bool;
     final reset = argResults!['reset'] as bool;
-    final imports = (argResults!['import'] as List<String>)
-        .map(EvalImport.parse)
-        .toList();
+    final imports = (argResults!['import'] as List<String>).map(EvalImport.parse).toList();
     final packages = argResults!['package'] as List<String>;
     final extra = argResults!['extra'] as List<String>;
     var code = argResults!.rest.join(' ');

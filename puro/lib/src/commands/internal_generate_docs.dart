@@ -38,13 +38,9 @@ class GenerateDocsCommand extends PuroCommand {
     final referenceDir = docsDir.childDirectory('reference');
     referenceDir.createSync(recursive: true);
 
-    await referenceDir
-        .childFile('commands.md')
-        .writeAsString(generateCommands());
+    await referenceDir.childFile('commands.md').writeAsString(generateCommands());
 
-    await puroDir
-        .childFile('CHANGELOG.md')
-        .copy(referenceDir.childFile('changelog.md').path);
+    await puroDir.childFile('CHANGELOG.md').copy(referenceDir.childFile('changelog.md').path);
 
     if (argResults!['deploy'] as bool) {
       // Replace master in the installation instructions with the latest version
@@ -81,7 +77,7 @@ class GenerateDocsCommand extends PuroCommand {
     final bool isDefault = defaultsTo is List
         ? defaultsTo.contains(allowed)
         : defaultsTo == allowed;
-    return '[$allowed]' + (isDefault ? ' (default)' : '');
+    return '[$allowed]${isDefault ? ' (default)' : ''}';
   }
 
   String optionString(Option option) {
@@ -145,9 +141,7 @@ class GenerateDocsCommand extends PuroCommand {
       } else if (option.isMultiple) {
         final defaultsTo = option.defaultsTo as List?;
         if (defaultsTo != null && defaultsTo.isNotEmpty) {
-          final defaults = defaultsTo
-              .map((dynamic value) => '`"$value"`')
-              .join(', ');
+          final defaults = defaultsTo.map((dynamic value) => '`"$value"`').join(', ');
           buffer.writeln('(defaults to $defaults)');
           buffer.writeln();
         }
@@ -171,7 +165,7 @@ class GenerateDocsCommand extends PuroCommand {
       );
       buffer.writeln();
       buffer.writeln('```sh');
-      buffer.writeln('${command.invocation}');
+      buffer.writeln(command.invocation);
       buffer.writeln('```');
       buffer.writeln();
       buffer.writeln(command.description);

@@ -74,7 +74,7 @@ Future<void> deleteEnvironment({
     }
 
     // Wait a bit for the handles to be released.
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<void>.delayed(const Duration(seconds: 2));
 
     // Try deleting again.
     await env.envDir.delete(recursive: true);

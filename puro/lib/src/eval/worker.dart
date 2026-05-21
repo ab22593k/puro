@@ -135,7 +135,7 @@ class EvalWorker {
         'run',
         '--no-serve-devtools',
         ...extra,
-        '${mainFile.path}',
+        mainFile.path,
       ],
       workingDirectory: projectDir.path,
       rosettaWorkaround: true,
@@ -208,10 +208,9 @@ class EvalWorker {
 
   Future<void> reload(ParseResult parseResult) async {
     log.d(() => '_evaluate: ${jsonEncode(parseResult.code)}');
-    if (parseResult.code == currentCode.code &&
-        !context.needsPackageReload &&
-        reloadSuccessful)
+    if (parseResult.code == currentCode.code && !context.needsPackageReload && reloadSuccessful) {
       return;
+    }
     reloadSuccessful = false;
     evalFile.writeAsStringSync(parseResult.code);
     currentCode = parseResult;

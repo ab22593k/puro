@@ -76,12 +76,11 @@ class PuroVersion {
       return null;
     }
     try {
-      final packageData =
-          jsonDecode(packageFile.readAsStringSync()) as Map<String, dynamic>;
+      final packageData = jsonDecode(packageFile.readAsStringSync()) as Map<String, dynamic>;
       final packages = packageData['packages'] as List<dynamic>;
-      final puroPackage = packages
-          .cast<Map<String, dynamic>>()
-          .firstWhereOrNull((e) => e['name'] == 'puro');
+      final puroPackage = packages.cast<Map<String, dynamic>>().firstWhereOrNull(
+        (e) => e['name'] == 'puro',
+      );
       if (puroPackage == null) {
         return null;
       }
@@ -118,18 +117,13 @@ class PuroVersion {
           path.join(path.current, target.executableName),
         ) ||
         path.equals(scriptPath, path.join(path.current, 'puro')) ||
-        config.fileSystem
-            .file(executablePath)
-            .parent
-            .pathEquals(config.binDir)) {
+        config.fileSystem.file(executablePath).parent.pathEquals(config.binDir)) {
       // A bug in dart gives an incorrect Platform.script :/
       // https://github.com/dart-lang/sdk/issues/45005
       scriptPath = executablePath;
     } else {
       try {
-        scriptPath = config.fileSystem
-            .file(scriptPath)
-            .resolveSymbolicLinksSync();
+        scriptPath = config.fileSystem.file(scriptPath).resolveSymbolicLinksSync();
       } catch (exception, stackTrace) {
         log.w('Error while resolving Platform.script\n$exception\n$stackTrace');
       }
@@ -216,8 +210,7 @@ class PuroVersion {
       } else if (installationType == PuroInstallationType.pub) {
         final pubspecLockFile = packageRoot.childFile('pubspec.lock');
         try {
-          final pubspecLock =
-              loadYaml(pubspecLockFile.readAsStringSync()) as YamlMap;
+          final pubspecLock = loadYaml(pubspecLockFile.readAsStringSync()) as YamlMap;
           version = Version.parse(
             pubspecLock['packages']['puro']['version'] as String,
           );
@@ -346,8 +339,7 @@ Future<CommandMessage?> checkIfUpdateAvailable({
   final latestVersion = latestVersionFile.existsSync()
       ? tryParseVersion(await readAtomic(scope: scope, file: latestVersionFile))
       : null;
-  final isOutOfDate =
-      latestVersion != null && latestVersion > puroVersion.semver;
+  final isOutOfDate = latestVersion != null && latestVersion > puroVersion.semver;
   final now = clock.now();
   final willNotify =
       isOutOfDate &&

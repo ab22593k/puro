@@ -2,10 +2,9 @@ import 'dart:convert';
 
 import 'package:petitparser/core.dart';
 
-abstract class JsonElement {
+sealed class JsonElement {
   Object? toJson();
-  MapEntry<String, dynamic> toMapEntry() =>
-      throw ArgumentError('$runtimeType is not a map entry');
+  MapEntry<String, dynamic> toMapEntry() => throw ArgumentError('$runtimeType is not a map entry');
   Iterable<Token<JsonElement>> get children;
   String toJsonString();
 }

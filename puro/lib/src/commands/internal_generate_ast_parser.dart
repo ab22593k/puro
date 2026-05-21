@@ -40,11 +40,7 @@ class GenerateASTParserCommand extends PuroCommand {
       '--',
       'pkg/kernel/binary.md',
     ], directory: sharedRepository);
-    final commits = (binaryMdResult.stdout as String)
-        .trim()
-        .split('\n')
-        .reversed
-        .toList();
+    final commits = (binaryMdResult.stdout as String).trim().split('\n').reversed.toList();
 
     commits.add(
       await git.getCurrentCommitHash(
@@ -183,9 +179,7 @@ class GenerateASTParserCommand extends PuroCommand {
           type: CompletionType.failure,
         );
       }
-      diffsDir
-          .childFile('v${entry.key}.diff')
-          .writeAsStringSync(diff.stdout as String);
+      diffsDir.childFile('v${entry.key}.diff').writeAsStringSync(diff.stdout as String);
     }
 
     // Download Dart
@@ -346,8 +340,7 @@ String generateAstForSchemas(Map<int, dynamic> schemas, {String? comment}) {
 
   DartType getType(dynamic data) {
     if (data is String) {
-      return types[fixName(data)] ??
-          (throw AssertionError('Unknown type $data'));
+      return types[fixName(data)] ?? (throw AssertionError('Unknown type $data'));
     } else if (data['list'] != null) {
       return ListType()..element = getType(data['list']);
     } else if (data['rlist'] != null) {
@@ -443,8 +436,7 @@ String generateAstForSchemas(Map<int, dynamic> schemas, {String? comment}) {
                 fieldName == 'tag' ||
                 fieldName == '_unused_' ||
                 fieldName == '8bitAlignment' ||
-                (name == 'ComponentFile' &&
-                    (fieldName == 'constants' || fieldName == 'strings'))) {
+                (name == 'ComponentFile' && (fieldName == 'constants' || fieldName == 'strings'))) {
               continue;
             }
             final type = getType(field['field'][0]);
@@ -466,8 +458,7 @@ String generateAstForSchemas(Map<int, dynamic> schemas, {String? comment}) {
           final parentName = parentType.name;
 
           if (existingParentName != null && existingParentName != parentName) {
-            existing.parent =
-                resolveMerge(existing.parent!, parentType) as ClassType;
+            existing.parent = resolveMerge(existing.parent!, parentType) as ClassType;
           } else {
             existing.parent = parentType;
           }
@@ -487,7 +478,7 @@ String generateAstForSchemas(Map<int, dynamic> schemas, {String? comment}) {
   final outAst = StringBuffer();
 
   if (comment != null) {
-    outAst.writeln(comment.split('\n').map((e) => '// $e').join('\n') + '\n');
+    outAst.writeln('${comment.split('\n').map((e) => '// $e').join('\n')}\n');
   }
 
   for (final tpe in types.values) {
@@ -621,22 +612,17 @@ class UnionType extends DartType {
   String get name {
     final firstName = first is UnionType
         ? first.name
-        : (first is ClassType
-              ? (first as ClassType).parent!.name
-              : throw AssertionError());
+        : (first is ClassType ? (first as ClassType).parent!.name : throw AssertionError());
     final secondName = second is UnionType
         ? second.name
-        : (second is ClassType
-              ? (second as ClassType).parent!.name
-              : throw AssertionError());
+        : (second is ClassType ? (second as ClassType).parent!.name : throw AssertionError());
     assert(firstName == secondName);
     return firstName;
   }
 
   @override
   DartType merge(DartType other) {
-    if (name ==
-            'PositiveIntLiteral | NegativeIntLiteral | SpecializedIntLiteral | BigIntLiteral' &&
+    if (name == 'PositiveIntLiteral | NegativeIntLiteral | SpecializedIntLiteral | BigIntLiteral' &&
         other.name == 'IntegerLiteral') {
       return other;
     }

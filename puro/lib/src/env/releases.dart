@@ -32,8 +32,7 @@ Future<FlutterReleasesModel> fetchFlutterReleases({
       bytes: response.bodyBytes,
       file: config.cachedReleasesJsonFile,
     );
-    return FlutterReleasesModel.create()
-      ..mergeFromProto3Json(jsonDecode(response.body));
+    return FlutterReleasesModel.create()..mergeFromProto3Json(jsonDecode(response.body));
   });
 }
 
@@ -44,16 +43,14 @@ Future<FlutterReleasesModel?> getCachedFlutterReleases({
   final config = PuroConfig.of(scope);
   final stat = config.cachedReleasesJsonFile.statSync();
   if (stat.type == FileSystemEntityType.notFound ||
-      (unlessStale &&
-          clock.now().difference(stat.modified) > const Duration(hours: 1))) {
+      (unlessStale && clock.now().difference(stat.modified) > const Duration(hours: 1))) {
     return null;
   }
   final content = await readAtomic(
     scope: scope,
     file: config.cachedReleasesJsonFile,
   );
-  return FlutterReleasesModel.create()
-    ..mergeFromProto3Json(jsonDecode(content));
+  return FlutterReleasesModel.create()..mergeFromProto3Json(jsonDecode(content));
 }
 
 /// Searches [releases] for a specific version and/or channel.
@@ -73,8 +70,7 @@ FlutterReleaseModel? searchFlutterVersions({
   final versionString = '$version';
   for (final release in releases.releases) {
     if (release.version == versionString ||
-        (release.version.startsWith('v') &&
-            release.version.substring(1) == versionString)) {
+        (release.version.startsWith('v') && release.version.substring(1) == versionString)) {
       final releaseChannel = FlutterChannel.parse(release.channel)!;
       if (channel == releaseChannel) return release;
       if (result == null || releaseChannel.index < resultChannel!.index) {
@@ -103,9 +99,7 @@ Future<FlutterReleaseModel?> findFrameworkRelease({
 
   final cachedReleasesStat = config.cachedReleasesJsonFile.statSync();
   final hasCache = cachedReleasesStat.type == FileSystemEntityType.file;
-  var cacheIsFresh =
-      hasCache &&
-      clock.now().difference(cachedReleasesStat.modified).inHours < 1;
+  var cacheIsFresh = hasCache && clock.now().difference(cachedReleasesStat.modified).inHours < 1;
   final isChannelOnly = channel != null && version == null;
 
   // Don't fetch from the cache if it's stale and we are looking for the latest
@@ -115,8 +109,7 @@ Future<FlutterReleaseModel?> findFrameworkRelease({
     await lockFile(scope, config.cachedReleasesJsonFile, (handle) async {
       final contents = await handle.readAllAsString();
       try {
-        cachedReleases = FlutterReleasesModel.create()
-          ..mergeFromProto3Json(jsonDecode(contents));
+        cachedReleases = FlutterReleasesModel.create()..mergeFromProto3Json(jsonDecode(contents));
       } catch (exception, stackTrace) {
         log.w('Error while parsing cached releases');
         log.w('$exception\n$stackTrace');

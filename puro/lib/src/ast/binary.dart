@@ -134,8 +134,7 @@ class BinReader extends Reader {
         case 'endOffsets.last':
           realSize = getParentUInt32(name, 'endOffsets.element');
         case 'length':
-          if (!name.endsWith('.UriSource.source') &&
-              !name.endsWith('.UriSource.sourceIndex')) {
+          if (!name.endsWith('.UriSource.source') && !name.endsWith('.UriSource.sourceIndex')) {
             throw UnimplementedError('Unknown array size: ${c.size} in $name');
           }
           realSize = getParentUInt32(name, 'length');
@@ -266,8 +265,7 @@ class BinFormat {
           if (childDecl['type'][2] != parentName) return;
           final childName = childDecl['type'][1] as String;
 
-          if (childDecl['type'][0] == true ||
-              (childDecl['type'][3] as List).isEmpty) {
+          if (childDecl['type'][0] == true || (childDecl['type'][3] as List).isEmpty) {
             // Enumerate the children of abstract types too
             for (final childChildDecl in childDecl['type'][3] as List) {
               visitDecl(childName, childChildDecl);

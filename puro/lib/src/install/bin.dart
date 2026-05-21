@@ -111,9 +111,7 @@ Future<void> _installTrampoline({
       installLocation = Platform.executable;
       break;
     case PuroInstallationType.development:
-      final puroDartFile = version.packageRoot!
-          .childDirectory('bin')
-          .childFile('puro.dart');
+      final puroDartFile = version.packageRoot!.childDirectory('bin').childFile('puro.dart');
       command = '"${Platform.executable}" "${puroDartFile.path}"';
       installLocation = puroDartFile.path;
       break;
@@ -134,17 +132,14 @@ Future<void> _installTrampoline({
       : '$trampolineHeader\n$command "\$@"';
 
   final trampolineExists = trampolineFile.existsSync();
-  final executableExists = executableIsTrampoline
-      ? trampolineExists
-      : executableFile.existsSync();
+  final executableExists = executableIsTrampoline ? trampolineExists : executableFile.existsSync();
   final installed = trampolineExists || executableExists;
 
   if (installed) {
     final trampolineStat = trampolineFile.statSync();
     final exists = trampolineStat.type == FileSystemEntityType.file;
     // --x--x--x -> 0b001001001 -> 0x49
-    final needsChmod =
-        !Platform.isWindows && trampolineStat.mode & 0x49 != 0x49;
+    final needsChmod = !Platform.isWindows && trampolineStat.mode & 0x49 != 0x49;
     final upToDate =
         exists &&
         await compareFileAtomic(

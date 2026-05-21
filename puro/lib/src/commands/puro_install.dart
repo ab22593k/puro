@@ -30,8 +30,7 @@ class PuroInstallCommand extends PuroCommand {
     );
     argParser.addOption(
       'profile',
-      help:
-          'Overrides the profile script puro appends to when updating the PATH',
+      help: 'Overrides the profile script puro appends to when updating the PATH',
     );
   }
 
@@ -56,9 +55,7 @@ class PuroInstallCommand extends PuroCommand {
     final force = argResults!['force'] as bool;
     final promote = argResults!['promote'] as bool;
     final profileOverride = argResults!['profile'] as String?;
-    final updatePath = argResults!.wasParsed('path')
-        ? argResults!['path'] as bool
-        : null;
+    final updatePath = argResults!.wasParsed('path') ? argResults!['path'] as bool : null;
 
     await ensurePuroInstalled(scope: scope, force: force, promote: promote);
 
@@ -107,13 +104,11 @@ class PuroInstallCommand extends PuroCommand {
       if (Platform.isLinux || Platform.isMacOS) {
         final profile = await installProfileEnv(
           scope: scope,
-          profileOverride: prefs.hasProfileOverride()
-              ? prefs.profileOverride
-              : null,
+          profileOverride: prefs.hasProfileOverride() ? prefs.profileOverride : null,
         );
         profilePath = profile?.path;
         if (profilePath != null && profilePath.startsWith(homeDir)) {
-          profilePath = '~' + profilePath.substring(homeDir.length);
+          profilePath = '~${profilePath.substring(homeDir.length)}';
         }
       } else if (Platform.isWindows) {
         updatedWindowsRegistry = await tryUpdateWindowsPath(scope: scope);
@@ -142,8 +137,8 @@ class PuroInstallCommand extends PuroCommand {
     );
 
     return BasicMessageResult.list([
-      if (externalMessage != null) externalMessage,
-      if (updateMessage != null) updateMessage,
+      ?externalMessage,
+      ?updateMessage,
       if (profilePath != null)
         CommandMessage(
           'Updated PATH in $profilePath, reopen your terminal or `source $profilePath` for it to take effect',

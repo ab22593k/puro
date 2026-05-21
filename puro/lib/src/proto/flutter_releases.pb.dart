@@ -48,25 +48,23 @@ class FlutterReleaseModel extends $pb.GeneratedMessage {
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'FlutterReleaseModel',
-      createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'hash')
-    ..aOS(2, _omitFieldNames ? '' : 'channel')
-    ..aOS(3, _omitFieldNames ? '' : 'version')
-    ..aOS(4, _omitFieldNames ? '' : 'dartSdkVersion')
-    ..aOS(5, _omitFieldNames ? '' : 'dartSdkArch')
-    ..aOS(6, _omitFieldNames ? '' : 'releaseDate')
-    ..aOS(7, _omitFieldNames ? '' : 'archive')
-    ..aOS(8, _omitFieldNames ? '' : 'sha256')
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i =
+      $pb.BuilderInfo(_omitMessageNames ? '' : 'FlutterReleaseModel', createEmptyInstance: create)
+        ..aOS(1, _omitFieldNames ? '' : 'hash')
+        ..aOS(2, _omitFieldNames ? '' : 'channel')
+        ..aOS(3, _omitFieldNames ? '' : 'version')
+        ..aOS(4, _omitFieldNames ? '' : 'dartSdkVersion')
+        ..aOS(5, _omitFieldNames ? '' : 'dartSdkArch')
+        ..aOS(6, _omitFieldNames ? '' : 'releaseDate')
+        ..aOS(7, _omitFieldNames ? '' : 'archive')
+        ..aOS(8, _omitFieldNames ? '' : 'sha256')
+        ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
   FlutterReleaseModel clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
   FlutterReleaseModel copyWith(void Function(FlutterReleaseModel) updates) =>
-      super.copyWith((message) => updates(message as FlutterReleaseModel))
-          as FlutterReleaseModel;
+      super.copyWith((message) => updates(message as FlutterReleaseModel)) as FlutterReleaseModel;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
@@ -76,8 +74,8 @@ class FlutterReleaseModel extends $pb.GeneratedMessage {
   @$core.override
   FlutterReleaseModel createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static FlutterReleaseModel getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<FlutterReleaseModel>(create);
+  static FlutterReleaseModel getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FlutterReleaseModel>(create);
   static FlutterReleaseModel? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -161,8 +159,7 @@ class FlutterReleasesModel extends $pb.GeneratedMessage {
   }) {
     final result = create();
     if (baseUrl != null) result.baseUrl = baseUrl;
-    if (currentRelease != null)
-      result.currentRelease.addEntries(currentRelease);
+    if (currentRelease != null) result.currentRelease.addEntries(currentRelease);
     if (releases != null) result.releases.addAll(releases);
     return result;
   }
@@ -176,24 +173,22 @@ class FlutterReleasesModel extends $pb.GeneratedMessage {
           [$pb.ExtensionRegistry registry = $pb.ExtensionRegistry.EMPTY]) =>
       create()..mergeFromJson(json, registry);
 
-  static final $pb.BuilderInfo _i = $pb.BuilderInfo(
-      _omitMessageNames ? '' : 'FlutterReleasesModel',
-      createEmptyInstance: create)
-    ..aOS(1, _omitFieldNames ? '' : 'baseUrl')
-    ..m<$core.String, $core.String>(2, _omitFieldNames ? '' : 'currentRelease',
-        entryClassName: 'FlutterReleasesModel.CurrentReleaseEntry',
-        keyFieldType: $pb.PbFieldType.OS,
-        valueFieldType: $pb.PbFieldType.OS)
-    ..pPM<FlutterReleaseModel>(3, _omitFieldNames ? '' : 'releases',
-        subBuilder: FlutterReleaseModel.create)
-    ..hasRequiredFields = false;
+  static final $pb.BuilderInfo _i =
+      $pb.BuilderInfo(_omitMessageNames ? '' : 'FlutterReleasesModel', createEmptyInstance: create)
+        ..aOS(1, _omitFieldNames ? '' : 'baseUrl')
+        ..m<$core.String, $core.String>(2, _omitFieldNames ? '' : 'currentRelease',
+            entryClassName: 'FlutterReleasesModel.CurrentReleaseEntry',
+            keyFieldType: $pb.PbFieldType.OS,
+            valueFieldType: $pb.PbFieldType.OS)
+        ..pPM<FlutterReleaseModel>(3, _omitFieldNames ? '' : 'releases',
+            subBuilder: FlutterReleaseModel.create)
+        ..hasRequiredFields = false;
 
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
   FlutterReleasesModel clone() => deepCopy();
   @$core.Deprecated('See https://github.com/google/protobuf.dart/issues/998.')
   FlutterReleasesModel copyWith(void Function(FlutterReleasesModel) updates) =>
-      super.copyWith((message) => updates(message as FlutterReleasesModel))
-          as FlutterReleasesModel;
+      super.copyWith((message) => updates(message as FlutterReleasesModel)) as FlutterReleasesModel;
 
   @$core.override
   $pb.BuilderInfo get info_ => _i;
@@ -203,8 +198,8 @@ class FlutterReleasesModel extends $pb.GeneratedMessage {
   @$core.override
   FlutterReleasesModel createEmptyInstance() => create();
   @$core.pragma('dart2js:noInline')
-  static FlutterReleasesModel getDefault() => _defaultInstance ??=
-      $pb.GeneratedMessage.$_defaultFor<FlutterReleasesModel>(create);
+  static FlutterReleasesModel getDefault() =>
+      _defaultInstance ??= $pb.GeneratedMessage.$_defaultFor<FlutterReleasesModel>(create);
   static FlutterReleasesModel? _defaultInstance;
 
   @$pb.TagNumber(1)
@@ -223,7 +218,5 @@ class FlutterReleasesModel extends $pb.GeneratedMessage {
   $pb.PbList<FlutterReleaseModel> get releases => $_getList(2);
 }
 
-const $core.bool _omitFieldNames =
-    $core.bool.fromEnvironment('protobuf.omit_field_names');
-const $core.bool _omitMessageNames =
-    $core.bool.fromEnvironment('protobuf.omit_message_names');
+const $core.bool _omitFieldNames = $core.bool.fromEnvironment('protobuf.omit_field_names');
+const $core.bool _omitMessageNames = $core.bool.fromEnvironment('protobuf.omit_message_names');

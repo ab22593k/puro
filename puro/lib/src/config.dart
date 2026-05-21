@@ -20,9 +20,7 @@ import 'version.dart';
 
 Directory? findProjectDir(Directory directory, String fileName) {
   while (directory.existsSync()) {
-    if (directory.fileSystem
-            .statSync(directory.childFile(fileName).path)
-            .type !=
+    if (directory.fileSystem.statSync(directory.childFile(fileName).path).type !=
         FileSystemEntityType.notFound) {
       return directory;
     }
@@ -33,6 +31,12 @@ Directory? findProjectDir(Directory directory, String fileName) {
   return null;
 }
 
+/// Mutable configuration derived from CLI flags, environment variables, global
+/// prefs, and file-system layout.
+///
+/// Owns the puro root directory layout, git repo URLs, Flutter engine / SDK
+/// cache locations, and environment resolution. Created once during
+/// [PuroCommandRunner.runCommand] and stored in the [Scope] DI container.
 class PuroConfig {
   PuroConfig({
     required this.fileSystem,
@@ -92,8 +96,7 @@ class PuroConfig {
     if (!const LocalProcessManager().canRun(gitExecutable)) {
       final String instructions;
       if (Platform.isWindows) {
-        instructions =
-            'running `winget install Git.Git` and restarting your shell';
+        instructions = 'running `winget install Git.Git` and restarting your shell';
       } else if (Platform.isLinux) {
         instructions = 'running `apt install git`';
       } else if (Platform.isMacOS) {
@@ -110,8 +113,7 @@ class PuroConfig {
         ? null
         : fileSystem.directory(projectDir).absolute;
 
-    var resultProjectDir =
-        absoluteProjectDir ?? findProjectDir(currentDir, 'pubspec.yaml');
+    var resultProjectDir = absoluteProjectDir ?? findProjectDir(currentDir, 'pubspec.yaml');
 
     // Puro looks for a suitable project root in the following order:
     //   1. Directory specified in `--project`
@@ -133,9 +135,7 @@ class PuroConfig {
 
     log.d('puroRootDir: $puroRoot');
     puroRoot.createSync(recursive: true);
-    puroRoot = fileSystem
-        .directory(puroRoot.resolveSymbolicLinksSync())
-        .absolute;
+    puroRoot = fileSystem.directory(puroRoot.resolveSymbolicLinksSync()).absolute;
     log.d('puroRoot (resolved): $puroRoot');
 
     if (environmentOverride == null) {
@@ -164,9 +164,7 @@ class PuroConfig {
     }
 
     flutterStorageBaseUrl ??=
-        (globalPrefs.hasFlutterStorageBaseUrl()
-            ? globalPrefs.flutterStorageBaseUrl
-            : null) ??
+        (globalPrefs.hasFlutterStorageBaseUrl() ? globalPrefs.flutterStorageBaseUrl : null) ??
         'https://storage.googleapis.com';
 
     final pubCacheOverride = Platform.environment['PUB_CACHE'];
@@ -174,13 +172,9 @@ class PuroConfig {
       pubCache ??= pubCacheOverride;
     }
     pubCache ??= globalPrefs.hasPubCacheDir() ? globalPrefs.pubCacheDir : null;
-    pubCache ??= puroRoot
-        .childDirectory('shared')
-        .childDirectory('pub_cache')
-        .path;
+    pubCache ??= puroRoot.childDirectory('shared').childDirectory('pub_cache').path;
 
-    shouldSkipCacheSync ??=
-        Platform.environment['PURO_SKIP_CACHE_SYNC']?.isNotEmpty ?? false;
+    shouldSkipCacheSync ??= Platform.environment['PURO_SKIP_CACHE_SYNC']?.isNotEmpty ?? false;
 
     return PuroConfig(
       fileSystem: fileSystem,
@@ -206,9 +200,7 @@ class PuroConfig {
           'https://github.com/dart-lang/sdk.git',
       releasesJsonUrl: Uri.parse(
         releasesJsonUrl ??
-            (globalPrefs.hasReleasesJsonUrl()
-                ? globalPrefs.releasesJsonUrl
-                : null) ??
+            (globalPrefs.hasReleasesJsonUrl() ? globalPrefs.releasesJsonUrl : null) ??
             '$flutterStorageBaseUrl/flutter_infra_release/releases/releases_${Platform.operatingSystem}.json',
       ),
       flutterStorageBaseUrl: Uri.parse(flutterStorageBaseUrl),
@@ -222,8 +214,7 @@ class PuroConfig {
           : PuroBuildTarget.query(),
       enableShims: enableShims,
       shouldInstall:
-          shouldInstall ??
-          (!globalPrefs.hasShouldInstall() || globalPrefs.shouldInstall),
+          shouldInstall ?? (!globalPrefs.hasShouldInstall() || globalPrefs.shouldInstall),
       shouldSkipCacheSync: shouldSkipCacheSync,
     );
   }
@@ -397,9 +388,7 @@ class PuroConfig {
 
   DartSdkConfig getDartRelease(DartRelease release) {
     return DartSdkConfig(
-      sharedDartReleaseDir
-          .childDirectory(release.name)
-          .childDirectory('dart-sdk'),
+      sharedDartReleaseDir.childDirectory(release.name).childDirectory('dart-sdk'),
     );
   }
 
@@ -410,8 +399,7 @@ class PuroConfig {
     const httpPrefix = 'https://github.com/';
     const sshPrefix = 'git@github.com:';
     final isHttp = flutterGitUrl.startsWith(httpPrefix);
-    if ((isHttp || flutterGitUrl.startsWith(sshPrefix)) &&
-        flutterGitUrl.endsWith('.git')) {
+    if ((isHttp || flutterGitUrl.startsWith(sshPrefix)) && flutterGitUrl.endsWith('.git')) {
       return Uri.https(
         'raw.githubusercontent.com',
         '${flutterGitUrl.substring(isHttp ? httpPrefix.length : sshPrefix.length, flutterGitUrl.length - 4)}/$commit/$path',
@@ -427,8 +415,7 @@ class PuroConfig {
     const httpPrefix = 'https://github.com/';
     const sshPrefix = 'git@github.com:';
     final isHttp = engineGitUrl.startsWith(httpPrefix);
-    if ((isHttp || engineGitUrl.startsWith(sshPrefix)) &&
-        engineGitUrl.endsWith('.git')) {
+    if ((isHttp || engineGitUrl.startsWith(sshPrefix)) && engineGitUrl.endsWith('.git')) {
       return Uri.https(
         'raw.githubusercontent.com',
         '${engineGitUrl.substring(isHttp ? httpPrefix.length : sshPrefix.length, engineGitUrl.length - 4)}/$commit/$path',
@@ -439,7 +426,7 @@ class PuroConfig {
 
   String shortenHome(String path) {
     if (path.startsWith(homeDir.path)) {
-      return '~' + path.substring(homeDir.path.length);
+      return '~${path.substring(homeDir.path.length)}';
     }
     return path;
   }
@@ -552,6 +539,11 @@ class ProjectConfig {
   }
 }
 
+/// A single Flutter environment directory under `envs/<name>`.
+///
+/// Contains the Flutter SDK checkout ([flutterDir]), engine build directory
+/// ([engineRootDir]), evaluation scratch-pad ([evalDir]), and per-environment
+/// prefs persisted to [prefsJsonFile].
 class EnvConfig {
   EnvConfig({required this.parentConfig, required this.envDir});
 
@@ -657,15 +649,11 @@ class FlutterConfig {
       .childDirectory('bin')
       .childFile('update_engine_version.sh');
 
-  String? get engineVersion => engineVersionFile.existsSync()
-      ? engineVersionFile.readAsStringSync().trim()
-      : null;
+  String? get engineVersion =>
+      engineVersionFile.existsSync() ? engineVersionFile.readAsStringSync().trim() : null;
 
-  bool get hasEngine => sdkDir
-      .childDirectory('engine')
-      .childDirectory('src')
-      .childFile('.gn')
-      .existsSync();
+  bool get hasEngine =>
+      sdkDir.childDirectory('engine').childDirectory('src').childFile('.gn').existsSync();
 }
 
 class FlutterCacheConfig {
@@ -684,12 +672,10 @@ class FlutterCacheConfig {
   late final File engineVersionFile = cacheDir.childFile(
     'engine-dart-sdk.stamp',
   );
-  String? get engineVersion => engineVersionFile.existsSync()
-      ? engineVersionFile.readAsStringSync().trim()
-      : null;
-  String? get flutterToolsStamp => flutterToolsStampFile.existsSync()
-      ? flutterToolsStampFile.readAsStringSync().trim()
-      : null;
+  String? get engineVersion =>
+      engineVersionFile.existsSync() ? engineVersionFile.readAsStringSync().trim() : null;
+  String? get flutterToolsStamp =>
+      flutterToolsStampFile.existsSync() ? flutterToolsStampFile.readAsStringSync().trim() : null;
   late final File versionJsonFile = cacheDir.childFile('flutter.version.json');
 
   bool get exists => cacheDir.existsSync();
@@ -761,7 +747,7 @@ bool isValidEnvName(String name) {
   return isValidName(name) || isValidVersion(name);
 }
 
-final _commitHashRegex = RegExp(r'^[0-9a-f]{5,40}$');
+final _commitHashRegex = RegExp(r'^[0-9a-f]{6,40}$');
 bool isValidCommitHash(String commit) {
   return _commitHashRegex.hasMatch(commit);
 }
@@ -882,8 +868,7 @@ Future<void> cleanDotfiles({required Scope scope}) {
     fn: (prefs) {
       for (final path in prefs.projectDotfiles.toList()) {
         final canonical = config.fileSystem.file(path).resolveIfExists().path;
-        if (config.fileSystem.statSync(path).type ==
-            FileSystemEntityType.notFound) {
+        if (config.fileSystem.statSync(path).type == FileSystemEntityType.notFound) {
           prefs.projectDotfiles.remove(path);
         } else if (canonical != path) {
           prefs.projectDotfiles.remove(path);
@@ -911,9 +896,7 @@ Future<Map<String, List<File>>> getAllDotfiles({required Scope scope}) async {
       final model = PuroDotfileModel.create();
       model.mergeFromProto3Json(data);
       if (model.hasEnv()) {
-        result
-            .putIfAbsent(model.env, () => {})
-            .add(dotfile.resolveSymbolicLinksSync());
+        result.putIfAbsent(model.env, () => {}).add(dotfile.resolveSymbolicLinksSync());
       }
     } catch (exception, stackTrace) {
       log.w('Error while reading $path');
@@ -925,8 +908,7 @@ Future<Map<String, List<File>>> getAllDotfiles({required Scope scope}) async {
     await cleanDotfiles(scope: scope);
   }
   return result.map(
-    (key, value) =>
-        MapEntry(key, value.map((e) => config.fileSystem.file(e)).toList()),
+    (key, value) => MapEntry(key, value.map((e) => config.fileSystem.file(e)).toList()),
   );
 }
 
@@ -973,8 +955,7 @@ class PuroInternalPrefsVars {
         } else {
           // If the field is a string, and the value does not start with ", just use
           // that literal value, otherwise we interpret it as json.
-          if (field.type & PbFieldType.OS == PbFieldType.OS &&
-              !value.startsWith('"')) {
+          if (field.type & PbFieldType.OS == PbFieldType.OS && !value.startsWith('"')) {
             data[key] = value;
           } else {
             data[key] = jsonDecode(value);

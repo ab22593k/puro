@@ -21,8 +21,7 @@ class EnginePrepareCommand extends PuroCommand {
   EnginePrepareCommand() {
     argParser.addOption(
       'fork',
-      help:
-          'The origin to use when cloning the engine, puro will set the upstream automatically.',
+      help: 'The origin to use when cloning the engine, puro will set the upstream automatically.',
       valueHelp: 'url',
     );
     argParser.addFlag(

@@ -69,8 +69,7 @@ class OutputFormatter {
     final lines = '$prefix$content'.split('\n');
     return [
       lines.first,
-      for (final line in lines.skip(1))
-        '${' ' * prefixLength}${line.replaceAll('\t', '    ')}',
+      for (final line in lines.skip(1)) '${' ' * prefixLength}${line.replaceAll('\t', '    ')}',
     ].join('\n');
   }
 
@@ -84,12 +83,9 @@ class OutputFormatter {
     );
   }
 
-  String success(String content) =>
-      complete(content, type: CompletionType.success);
-  String failure(String content) =>
-      complete(content, type: CompletionType.failure);
-  String indeterminate(String content) =>
-      complete(content, type: CompletionType.indeterminate);
+  String success(String content) => complete(content, type: CompletionType.success);
+  String failure(String content) => complete(content, type: CompletionType.failure);
+  String indeterminate(String content) => complete(content, type: CompletionType.indeterminate);
   String info(String content) => complete(content, type: CompletionType.info);
 
   static const indeterminatePrefix = '[~]';
@@ -125,8 +121,7 @@ class Terminal implements StringSink {
   final Stdout stdout;
   late var enableColor =
       stdout.supportsAnsiEscapes ||
-      (Platform.isWindows &&
-          (Platform.environment['TERM']?.contains('xterm') ?? false));
+      (Platform.isWindows && (Platform.environment['TERM']?.contains('xterm') ?? false));
   late var enableStatus = enableColor;
   late final statusDebouncer = Debouncer<String>(
     minDuration: const Duration(milliseconds: 50),

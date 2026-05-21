@@ -64,8 +64,7 @@ Future<EnvUpgradeResult> upgradeEnvironment({
   environment.ensureExists();
 
   if (isValidVersion(environment.name) &&
-      (toVersion.version == null ||
-          environment.name != '${toVersion.version}')) {
+      (toVersion.version == null || environment.name != '${toVersion.version}')) {
     throw CommandError(
       'Cannot upgrade environment ${environment.name} to a different version, '
       'run `puro use ${toVersion.name}` instead to switch your project',
@@ -109,8 +108,7 @@ Future<EnvUpgradeResult> upgradeEnvironment({
         throw CommandError("Can't upgrade fork with uncomitted changes");
       }
       await git.pull(repository: repository, all: true);
-      final switchBranch =
-          toVersion.branch != null && branch != toVersion.branch;
+      final switchBranch = toVersion.branch != null && branch != toVersion.branch;
       if (switchBranch) {
         await git.checkout(repository: repository, ref: toVersion.branch!);
       }

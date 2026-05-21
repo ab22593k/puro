@@ -150,13 +150,9 @@ Future<ListEnvironmentResult> listEnvironments({
         environment: environment,
       );
       final dartVersionFile = environment.flutter.cache.dartSdk.versionFile;
-      dartVersion = dartVersionFile.existsSync()
-          ? dartVersionFile.readAsStringSync().trim()
-          : null;
+      dartVersion = dartVersionFile.existsSync() ? dartVersionFile.readAsStringSync().trim() : null;
     }
-    final projects = (allDotfiles[environment.name] ?? [])
-        .map((e) => e.parent)
-        .toList();
+    final projects = (allDotfiles[environment.name] ?? []).map((e) => e.parent).toList();
     results.add(
       EnvironmentInfoResult(
         environment,
@@ -185,9 +181,7 @@ Future<ListEnvironmentResult> listEnvironments({
       final dartVersion = dartVersionFile.existsSync()
           ? dartVersionFile.readAsStringSync().trim()
           : null;
-      final projects = (allDotfiles[environment.name] ?? [])
-          .map((e) => e.parent)
-          .toList();
+      final projects = (allDotfiles[environment.name] ?? []).map((e) => e.parent).toList();
       results.add(
         EnvironmentInfoResult(
           environment,

@@ -13,7 +13,7 @@ import '../logger.dart';
 import '../provider.dart';
 
 class EvalPubError extends CommandError {
-  EvalPubError(String message) : super(message);
+  EvalPubError(super.message);
 }
 
 Future<bool> updateBootstrapPackages({
@@ -38,9 +38,7 @@ Future<bool> updateBootstrapPackages({
       if (pubspecLockFile.existsSync()) {
         final yamlData =
             loadYaml(
-                  pubspecLockFile.existsSync()
-                      ? pubspecLockFile.readAsStringSync()
-                      : '{}',
+                  pubspecLockFile.existsSync() ? pubspecLockFile.readAsStringSync() : '{}',
                 )
                 as YamlMap;
         for (final package in (yamlData['packages'] as YamlMap).entries) {
@@ -98,9 +96,7 @@ Future<bool> updateBootstrapPackages({
       }
     }
 
-    final original = pubspecYamlFile.existsSync()
-        ? pubspecYamlFile.readAsStringSync()
-        : null;
+    final original = pubspecYamlFile.existsSync() ? pubspecYamlFile.readAsStringSync() : null;
     pubspecYamlFile.writeAsStringSync('$yaml');
 
     final stdoutBuffer = Uint8Buffer();

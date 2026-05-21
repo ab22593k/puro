@@ -4,8 +4,7 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
   @override
   Parser start() => ref0(topLevelDecls).end();
 
-  Parser topLevelDecls() =>
-      ref0(topLevelDecl).star().map((e) => e.nonNulls.toList());
+  Parser topLevelDecls() => ref0(topLevelDecl).star().map((e) => e.nonNulls.toList());
 
   final ignoreDecls = {
     ['Byte flags (flag1, flag2, ..., flagN)'],
@@ -55,16 +54,14 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
       ].toSequenceParser().map((e) => null),
     ref0(typeDecl),
     ref0(enumDecl),
-    failure(message: 'Expected top-level declaration'),
+    failure<dynamic>(message: 'Expected top-level declaration'),
   ].map((e) => e.trim(space())).toChoiceParser();
 
   Parser typeDecl() =>
       (string('abstract ').optional() &
               string('type') &
               ref0(identifier).trim(space()) &
-              (string('extends') & ref0(identifier).trim(space()))
-                  .pick(1)
-                  .optional() &
+              (string('extends') & ref0(identifier).trim(space())).pick(1).optional() &
               string('{') &
               ref0(fieldDecl).star() &
               string('}'))
@@ -83,8 +80,9 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
                               digit().star().flatten().trim(space()) &
                               string(',').trim(space()).optional())
                           .map((e) => [e[0], e[2]]) |
-                      (ref0(identifier) & string(',').trim(space()).optional())
-                          .map((e) => [e[0], null]))
+                      (ref0(identifier) & string(',').trim(space()).optional()).map(
+                        (e) => [e[0], null],
+                      ))
                   .star() &
               string('}'))
           .map(
@@ -97,22 +95,13 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
     string('Uint').map((e) => 'UInt'), // lol
     string('UInt30').map((e) => 'UInt'), // lol
     (string('List<') & ref0(tpe) & string('>')).pick(1).map((e) => {'list': e}),
-    (string('RList<') & ref0(tpe) & string('>'))
-        .pick(1)
-        .map((e) => {'rlist': e}),
-    (string('Option<') & ref0(tpe) & string('>'))
-        .pick(1)
-        .map((e) => {'option': e}),
-    (string('Pair<') &
-            ref0(tpe) &
-            string(',').trim(space()) &
-            ref0(tpe) &
-            string('>'))
-        .map(
-          (e) => {
-            'pair': [e[1], e[3]],
-          },
-        ),
+    (string('RList<') & ref0(tpe) & string('>')).pick(1).map((e) => {'rlist': e}),
+    (string('Option<') & ref0(tpe) & string('>')).pick(1).map((e) => {'option': e}),
+    (string('Pair<') & ref0(tpe) & string(',').trim(space()) & ref0(tpe) & string('>')).map(
+      (e) => {
+        'pair': [e[1], e[3]],
+      },
+    ),
     (string('[') & ref0(tpe) & string(',') & ref0(tpe) & string(']')).map(
       (e) => {
         'pair': [e[1], e[3]],
@@ -123,10 +112,7 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
 
   Parser tpeArr() =>
       (ref0(tpeInner) &
-              (string('[') &
-                      any().starLazy(string(']')).flatten() &
-                      string(']'))
-                  .optional())
+              (string('[') & any().starLazy(string(']')).flatten() & string(']')).optional())
           .map(
             (e) => e[1] != null
                 ? {
@@ -136,14 +122,13 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
           )
           .trim(space());
 
-  Parser tpe() =>
-      (ref0(tpeArr) & (string('|') & ref0(tpe)).pick(1).optional()).map(
-        (e) => e[1] != null
-            ? {
-                'union': [e[0], e[1]],
-              }
-            : e[0],
-      );
+  Parser tpe() => (ref0(tpeArr) & (string('|') & ref0(tpe)).pick(1).optional()).map(
+    (e) => e[1] != null
+        ? {
+            'union': [e[0], e[1]],
+          }
+        : e[0],
+  );
 
   Parser fieldDecl() => [
     (string('Byte') &
@@ -165,9 +150,7 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
         ),
     (ref0(tpe) &
             (ref0(space).optional() & ref0(identifier)).pick(1) &
-            ((string('=') & space() & any().plusLazy(string(';')).flatten())
-                        .pick(2)
-                        .optional() &
+            ((string('=') & space() & any().plusLazy(string(';')).flatten()).pick(2).optional() &
                     string(';'))
                 .pick(0))
         .map(
@@ -189,9 +172,7 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
     (ref0(tpe) &
             ref0(identifier) &
             pattern('{(') &
-            (ref0(identifier) & string(',').trim(ref0(space)).optional())
-                .pick(0)
-                .star() &
+            (ref0(identifier) & string(',').trim(ref0(space)).optional()).pick(0).star() &
             pattern('})') &
             string(';'))
         .map(
@@ -206,8 +187,7 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
   }
 
   Parser<String> inlineComment() {
-    return (string('/*') & any().starLazy(string('*/')) & string('*/'))
-        .flatten();
+    return (string('/*') & any().starLazy(string('*/')) & string('*/')).flatten();
   }
 
   Parser<String> space() {
@@ -216,6 +196,5 @@ class BinaryMdGrammar extends GrammarDefinition<dynamic> {
 
   Parser<String> notSpace() => any().plusLazy(space()).flatten();
 
-  Parser<String> identifier() =>
-      (letter() | digit() | string('_')).plus().flatten().trim(space());
+  Parser<String> identifier() => (letter() | digit() | string('_')).plus().flatten().trim(space());
 }

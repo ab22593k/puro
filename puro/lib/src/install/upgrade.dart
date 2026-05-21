@@ -39,18 +39,15 @@ Future<int> upgradePuro({
   tempFile.renameSync(config.puroExecutableFile.path);
 
   terminal.flushStatus();
-  final installProcess =
-      await startProcess(scope, config.puroExecutableFile.path, [
-        if (terminal.enableColor) '--color',
-        if (terminal.enableStatus) '--progress',
-        '--log-level=${log.level?.index ?? 0}',
-        'install-puro',
-        if (path != null)
-          if (path) '--path' else '--no-path',
-      ]);
-  final stdoutFuture = installProcess.stdout
-      .listen(stdout.add)
-      .asFuture<void>();
+  final installProcess = await startProcess(scope, config.puroExecutableFile.path, [
+    if (terminal.enableColor) '--color',
+    if (terminal.enableStatus) '--progress',
+    '--log-level=${log.level?.index ?? 0}',
+    'install-puro',
+    if (path != null)
+      if (path) '--path' else '--no-path',
+  ]);
+  final stdoutFuture = installProcess.stdout.listen(stdout.add).asFuture<void>();
   await installProcess.stderr.listen(stderr.add).asFuture<void>();
   await stdoutFuture;
   return installProcess.exitCode;

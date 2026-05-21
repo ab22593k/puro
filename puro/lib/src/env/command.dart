@@ -37,8 +37,7 @@ Future<int> runFlutterCommand({
   );
   Terminal.of(scope).flushStatus();
   final dartPath = flutterConfig.cache.dartSdk.dartExecutable.path;
-  final shouldPrecompile =
-      !environmentPrefs.hasPrecompileTool() || environmentPrefs.precompileTool;
+  final shouldPrecompile = !environmentPrefs.hasPrecompileTool() || environmentPrefs.precompileTool;
   final quirks = await getToolQuirks(scope: scope, environment: environment);
   final syncCache = !args.contains('--version');
   if (syncCache) {
@@ -116,9 +115,7 @@ Future<int> runDartCommand({
     'Setting up dart took ${clock.now().difference(start).inMilliseconds}ms',
   );
   final nonOptionArgs = args.where((e) => !e.startsWith('-')).toList();
-  if (nonOptionArgs.length >= 2 &&
-      nonOptionArgs[0] == 'pub' &&
-      nonOptionArgs[1] == 'global') {
+  if (nonOptionArgs.length >= 2 && nonOptionArgs[0] == 'pub' && nonOptionArgs[1] == 'global') {
     final defaultEnvName = await getDefaultEnvName(scope: scope);
     if (environment.name != defaultEnvName) {
       log.w(

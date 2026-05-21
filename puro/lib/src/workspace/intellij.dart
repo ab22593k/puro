@@ -81,8 +81,7 @@ class IntelliJConfig extends IdeConfig {
     // The IntelliJ Dart plugin parses this file and walks its AST to extract
     // the keys of this library map. This is dumb. 💀
     // https://github.com/JetBrains/intellij-plugins/blob/0f07ca63355d5530b441ca566c98f17c560e77f8/Dart/src/com/jetbrains/lang/dart/ide/index/DartLibraryIndex.java#L132
-    final librariesFileLines = await dartSdk.internalLibrariesDartFile
-        .readAsLines();
+    final librariesFileLines = await dartSdk.internalLibrariesDartFile.readAsLines();
     final startLine = librariesFileLines.indexOf(
       'const Map<String, LibraryInfo> libraries = const {',
     );
@@ -96,8 +95,7 @@ class IntelliJConfig extends IdeConfig {
     String? currentLib;
     for (var i = startLine; i < endLine; i++) {
       final line = librariesFileLines[i];
-      if (line.trimLeft().startsWith('documented: false') &&
-          currentLib != null) {
+      if (line.trimLeft().startsWith('documented: false') && currentLib != null) {
         libraries.remove(currentLib);
         continue;
       }
@@ -113,32 +111,32 @@ class IntelliJConfig extends IdeConfig {
         'Failed to extract libraries from ${dartSdk.internalLibrariesDartFile.path}',
       );
     }
-    final homeDirStr = path
-        .canonicalize(config.homeDir.path)
-        .replaceAll('\\', '/');
+    final homeDirStr = path.canonicalize(config.homeDir.path).replaceAll('\\', '/');
     final urls = <String>[
       for (final libName in libraries)
-        '${Uri.file(path.canonicalize(dartSdk.libDir.path))}/$libName'
-            .replaceAll('$homeDirStr', r'$USER_HOME$'),
+        '${Uri.file(path.canonicalize(dartSdk.libDir.path))}/$libName'.replaceAll(
+          homeDirStr,
+          r'$USER_HOME$',
+        ),
     ];
     urls.sort();
     final document = XmlDocument([
       XmlElement(
-        XmlName('component'),
-        [XmlAttribute(XmlName('name'), 'libraryTable')],
+        const XmlName.parts('component'),
+        [XmlAttribute(const XmlName.parts('name'), 'libraryTable')],
         [
           XmlElement(
-            XmlName('library'),
-            [XmlAttribute(XmlName('name'), 'Dart SDK')],
+            const XmlName.parts('library'),
+            [XmlAttribute(const XmlName.parts('name'), 'Dart SDK')],
             [
-              XmlElement(XmlName('CLASSES'), [], [
+              XmlElement(const XmlName.parts('CLASSES'), [], [
                 for (final url in urls)
-                  XmlElement(XmlName('root'), [
-                    XmlAttribute(XmlName('url'), url),
+                  XmlElement(const XmlName.parts('root'), [
+                    XmlAttribute(const XmlName.parts('url'), url),
                   ]),
               ]),
-              XmlElement(XmlName('JAVADOC')),
-              XmlElement(XmlName('SOURCES')),
+              XmlElement(const XmlName.parts('JAVADOC')),
+              XmlElement(const XmlName.parts('SOURCES')),
             ],
           ),
         ],
@@ -170,9 +168,7 @@ class IntelliJConfig extends IdeConfig {
     }
 
     var component = project.childElements.firstWhereOrNull(
-      (e) =>
-          e.name.toString() == 'component' &&
-          e.getAttribute('name') == 'ProjectModuleManager',
+      (e) => e.name.toString() == 'component' && e.getAttribute('name') == 'ProjectModuleManager',
     );
     if (component == null) {
       log.d('enableDartSupport - no component');
@@ -189,10 +185,9 @@ class IntelliJConfig extends IdeConfig {
     const dotIdeaStr = r'.idea/';
     final rootModule = modules.childElements.firstWhereOrNull((e) {
       var filepath = e.getAttribute('filepath');
-      if (filepath == null ||
-          !filepath.startsWith(projectDirStr) ||
-          !filepath.endsWith('.iml'))
+      if (filepath == null || !filepath.startsWith(projectDirStr) || !filepath.endsWith('.iml')) {
         return false;
+      }
       filepath = filepath.substring(projectDirStr.length);
       if (filepath.startsWith(dotIdeaStr)) {
         filepath = filepath.substring(dotIdeaStr.length);
@@ -204,9 +199,7 @@ class IntelliJConfig extends IdeConfig {
       return;
     }
 
-    var rootModulePath = rootModule
-        .getAttribute('filepath')!
-        .substring(projectDirStr.length);
+    var rootModulePath = rootModule.getAttribute('filepath')!.substring(projectDirStr.length);
     if (Platform.isWindows) {
       rootModulePath = rootModulePath.replaceAll('/', '\\');
     }
@@ -226,9 +219,7 @@ class IntelliJConfig extends IdeConfig {
     }
 
     component = module.childElements.firstWhereOrNull(
-      (e) =>
-          e.name.toString() == 'component' &&
-          e.getAttribute('name') == 'NewModuleRootManager',
+      (e) => e.name.toString() == 'component' && e.getAttribute('name') == 'NewModuleRootManager',
     );
     if (component == null) {
       log.d('enableDartSupport - no component in iml');
@@ -252,10 +243,10 @@ class IntelliJConfig extends IdeConfig {
 
     for (final library in needsLibraries) {
       component.children.add(
-        XmlElement(XmlName('orderEntry'), [
-          XmlAttribute(XmlName('type'), 'library'),
-          XmlAttribute(XmlName('name'), library),
-          XmlAttribute(XmlName('level'), 'project'),
+        XmlElement(const XmlName.parts('orderEntry'), [
+          XmlAttribute(const XmlName.parts('type'), 'library'),
+          XmlAttribute(const XmlName.parts('name'), library),
+          XmlAttribute(const XmlName.parts('level'), 'project'),
         ]),
       );
     }
@@ -277,8 +268,7 @@ class IntelliJConfig extends IdeConfig {
     if (workspaceDir == null) {
       return IntelliJConfig(
         workspaceDir:
-            config.findVSCodeWorkspaceDir(projectDir) ??
-            projectConfig.ensureParentProjectDir(),
+            config.findVSCodeWorkspaceDir(projectDir) ?? projectConfig.ensureParentProjectDir(),
         projectConfig: projectConfig,
         exists: false,
       );
@@ -307,17 +297,11 @@ class IntelliJConfig extends IdeConfig {
                 workspaceDir.path,
               ),
         ).toFilePath().replaceAll(RegExp(r'^\\\\'), '');
-        final dartSdkDir = config.fileSystem
-            .directory(urlPath)
-            .absolute
-            .parent
-            .parent;
+        final dartSdkDir = config.fileSystem.directory(urlPath).absolute.parent.parent;
         if (dartSdkDir.childDirectory('bin').existsSync()) {
           intellijConfig.dartSdkDir = dartSdkDir.absolute;
-          if (dartSdkDir.parent.basename == 'cache' &&
-              dartSdkDir.parent.parent.basename == 'bin') {
-            intellijConfig.flutterSdkDir =
-                dartSdkDir.parent.parent.parent.absolute;
+          if (dartSdkDir.parent.basename == 'cache' && dartSdkDir.parent.parent.basename == 'bin') {
+            intellijConfig.flutterSdkDir = dartSdkDir.parent.parent.parent.absolute;
           }
         }
       }

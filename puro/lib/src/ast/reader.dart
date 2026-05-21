@@ -34,26 +34,19 @@ class Reader {
       return ((byte & 0x3F) << 8) | readByte();
     } else {
       // 11xxxxxx
-      return ((byte & 0x3F) << 24) |
-          (readByte() << 16) |
-          (readByte() << 8) |
-          readByte();
+      return ((byte & 0x3F) << 24) | (readByte() << 16) | (readByte() << 8) | readByte();
     }
   }
 
   int readUInt32() {
-    return (readByte() << 24) |
-        (readByte() << 16) |
-        (readByte() << 8) |
-        readByte();
+    return (readByte() << 24) | (readByte() << 16) | (readByte() << 8) | readByte();
   }
 
   final _doubleBuffer = Float64List(1);
   Uint8List? _doubleBufferUint8;
 
   double readDouble() {
-    final doubleBufferUint8 = _doubleBufferUint8 ??= _doubleBuffer.buffer
-        .asUint8List();
+    final doubleBufferUint8 = _doubleBufferUint8 ??= _doubleBuffer.buffer.asUint8List();
     doubleBufferUint8[0] = readByte();
     doubleBufferUint8[1] = readByte();
     doubleBufferUint8[2] = readByte();

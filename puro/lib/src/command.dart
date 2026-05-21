@@ -6,6 +6,7 @@ import 'package:args/command_runner.dart';
 import 'package:async/async.dart';
 import 'package:clock/clock.dart';
 import 'package:file/local.dart';
+import 'package:io/io.dart' show ExitCode;
 
 import '../models.dart';
 import 'command_result.dart';
@@ -15,6 +16,10 @@ import 'provider.dart';
 import 'terminal.dart';
 import 'version.dart';
 
+/// Base class for all puro CLI commands.
+///
+/// Extends [Command] from `package:args` with puro-specific conveniences:
+/// argument unwrapping, scope access, update-check control, and usage formatting.
 abstract class PuroCommand extends Command<CommandResult> {
   @override
   PuroCommandRunner get runner => super.runner as PuroCommandRunner;
@@ -130,6 +135,11 @@ abstract class PuroCommand extends Command<CommandResult> {
   }
 }
 
+/// Custom [CommandRunner] that manages puro's lifecycle: config initialization,
+/// argument parsing, plugin callback execution, update checks, and exit handling.
+///
+/// Owns the [Scope] hierarchy, background task tracking, and [CommandResult]
+/// serialization (JSON or terminal-formatted output).
 class PuroCommandRunner extends CommandRunner<CommandResult> {
   PuroCommandRunner(
     super.executableName,
@@ -163,11 +173,22 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
 
   late List<String> args;
   ArgResults? results;
+
+  /// Buffered log entries for JSON output serialization.
   final logEntries = <LogEntry>[];
+
+  /// Accumulated user-facing messages displayed before the exit result.
   final messages = <CommandMessage>[];
+
+  /// Lazily-evaluated argument callbacks queued during [parse] and flushed
+  /// during [runCommand] after config is initialized.
   final callbackQueue = <void Function()>[];
+
   final fileSystem = const LocalFileSystem();
+
+  /// Futures running in the background (e.g. version checks), awaited on exit.
   final backgroundTasks = <Future<void>, String>{};
+
   bool initialized = false;
 
   // Silly workaround to allow us to keep argument results even with invalid
@@ -200,8 +221,7 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
     }
     isExiting = true;
     final results = <ResultFuture<void>, String>{
-      for (final entry in backgroundTasks.entries)
-        ResultFuture(entry.key): entry.value,
+      for (final entry in backgroundTasks.entries) ResultFuture(entry.key): entry.value,
     };
 
     await Future.wait(results.keys).timeout(
@@ -254,11 +274,10 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
     messages.add(CommandMessage(message, type: type));
   }
 
-  var _exiting = false;
   Future<Never> writeResultAndExit(CommandResult result) async {
+    if (isExiting) exit(1);
+    isExiting = true;
     try {
-      if (_exiting) await Completer<void>().future;
-      _exiting = true;
       final model = result.toModel();
       if (isJson) {
         final resultJson = model.toProto3Json();
@@ -292,12 +311,18 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
         );
         messages.clear();
       }
-      await exitPuro(model.success ? 0 : 1);
+      await exitPuro(
+        (result is CommandHelpResult && !result.didRequestHelp)
+            ? ExitCode.usage.code
+            : model.success
+            ? ExitCode.success.code
+            : ExitCode.software.code,
+      );
     } catch (exception, stackTrace) {
       stderr.writeln(
         'Exception while writing result:\n$exception\n$stackTrace',
       );
-      exit(1);
+      exit(ExitCode.software.code);
     }
   }
 
@@ -330,8 +355,7 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
       );
       final prefsJson = puroRoot.childFile('prefs.json');
       scope.add(globalPrefsJsonFileProvider, prefsJson);
-      final firstRun =
-          !prefsJson.existsSync() || prefsJson.statSync().size == 0;
+      final firstRun = !prefsJson.existsSync() || prefsJson.statSync().size == 0;
       scope.add(isFirstRunProvider, firstRun);
       log.d('firstRun: $firstRun');
       log.d('legacyPubCache: $legacyPubCache');
@@ -376,8 +400,7 @@ class PuroCommandRunner extends CommandRunner<CommandResult> {
       initialized = true;
     }
 
-    if (topLevelResults.wasParsed('version') &&
-        topLevelResults.command?.name != 'version') {
+    if (topLevelResults.wasParsed('version') && topLevelResults.command?.name != 'version') {
       return run(['version']);
     }
 

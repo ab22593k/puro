@@ -8,13 +8,11 @@ Future<void> installDepotTools({required Scope scope}) async {
   final config = PuroConfig.of(scope);
   final git = GitClient.of(scope);
   final depotToolsDir = config.depotToolsDir;
-  if (depotToolsDir.existsSync() &&
-      depotToolsDir.childFile('gclient').existsSync()) {
+  if (depotToolsDir.existsSync() && depotToolsDir.childFile('gclient').existsSync()) {
     log.v('depot_tools already installed');
   } else {
     await git.cloneWithProgress(
-      remote:
-          'https://chromium.googlesource.com/chromium/tools/depot_tools.git',
+      remote: 'https://chromium.googlesource.com/chromium/tools/depot_tools.git',
       repository: depotToolsDir,
     );
   }

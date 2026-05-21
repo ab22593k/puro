@@ -189,7 +189,7 @@ class ActiveProgressNode extends ProgressNode {
     }
     if (children.isNotEmpty) {
       text =
-          '$text\n${_indentString('${children.where((e) => e.visible).map((e) => e.render()).join('\n')}', '  ')}';
+          '$text\n${_indentString(children.where((e) => e.visible).map((e) => e.render()).join('\n'), '  ')}';
     }
     return text;
   }

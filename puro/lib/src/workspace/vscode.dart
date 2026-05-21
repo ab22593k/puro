@@ -101,8 +101,7 @@ class VSCodeConfig extends IdeConfig {
       editor.update([dartSdkDirKey], dartSdkDir?.path);
     }
 
-    if (editor.query([flutterSdkDirKey])?.value.toJson() !=
-            flutterSdkDir?.path ||
+    if (editor.query([flutterSdkDirKey])?.value.toJson() != flutterSdkDir?.path ||
         editor.query([dartSdkDirKey])?.value.toJson() != dartSdkDir?.path) {
       throw AssertionError('Corrupt settings.json');
     }
@@ -131,9 +130,7 @@ class VSCodeConfig extends IdeConfig {
     log.v('vscode workspaceDir: $workspaceDir');
     if (workspaceDir == null) {
       return VSCodeConfig(
-        workspaceDir:
-            findProjectDir(projectDir, '.idea') ??
-            projectConfig.ensureParentProjectDir(),
+        workspaceDir: findProjectDir(projectDir, '.idea') ?? projectConfig.ensureParentProjectDir(),
         projectConfig: projectConfig,
         exists: false,
       );
@@ -143,13 +140,9 @@ class VSCodeConfig extends IdeConfig {
       projectConfig: projectConfig,
       exists: true,
     );
-    if (vscodeConfig.settingsFile.existsSync() &&
-        vscodeConfig.settingsFile.lengthSync() > 0) {
+    if (vscodeConfig.settingsFile.existsSync() && vscodeConfig.settingsFile.lengthSync() > 0) {
       final editor = vscodeConfig.readSettings();
-      final flutterSdkPathStr = editor
-          .query([flutterSdkDirKey])
-          ?.value
-          .toJson();
+      final flutterSdkPathStr = editor.query([flutterSdkDirKey])?.value.toJson();
       if (flutterSdkPathStr is String) {
         vscodeConfig.flutterSdkDir = config.fileSystem.directory(
           flutterSdkPathStr,

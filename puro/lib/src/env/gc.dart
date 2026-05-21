@@ -15,12 +15,11 @@ Future<int> collectGarbage({
   final git = GitClient.of(scope);
   final sharedCacheDirs = config.sharedCachesDir.existsSync()
       ? config.sharedCachesDir.listSync()
-      : [];
+      : <FileSystemEntity>[];
   final flutterToolDirs = config.sharedFlutterToolsDir.existsSync()
       ? config.sharedFlutterToolsDir.listSync()
-      : [];
-  if (sharedCacheDirs.length < maxUnusedCaches &&
-      flutterToolDirs.length < maxUnusedFlutterTools) {
+      : <FileSystemEntity>[];
+  if (sharedCacheDirs.length < maxUnusedCaches && flutterToolDirs.length < maxUnusedFlutterTools) {
     // Don't bother cleaning up if there are less than maxUnusedCaches
     return 0;
   }
@@ -48,8 +47,9 @@ Future<int> collectGarbage({
   for (final dir in sharedCacheDirs) {
     if (dir is! Directory ||
         !isValidCommitHash(dir.basename) ||
-        usedCaches.contains(dir.basename))
+        usedCaches.contains(dir.basename)) {
       continue;
+    }
     final config = FlutterCacheConfig(dir);
     final versionFile = config.engineVersionFile;
     if (versionFile.existsSync()) {
@@ -65,8 +65,9 @@ Future<int> collectGarbage({
   for (final dir in flutterToolDirs) {
     if (dir is! Directory ||
         !isValidCommitHash(dir.basename) ||
-        usedCommits.contains(dir.basename))
+        usedCommits.contains(dir.basename)) {
       continue;
+    }
     final snapshotFile = dir.childFile('flutter_tool.snapshot');
     if (snapshotFile.existsSync()) {
       unusedFlutterTools[dir] = snapshotFile.lastAccessedSync();
@@ -96,8 +97,7 @@ Future<int> collectGarbage({
 
   // In theory this should be the access times in ascending order but I never
   // tested it (famous last words)
-  var entries = unusedCaches.entries.toList()
-    ..sort((a, b) => a.value.compareTo(b.value));
+  var entries = unusedCaches.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
   for (var i = 0; i < entries.length - maxUnusedCaches; i++) {
     final dir = entries[i].key;
     log.v('Deleting ${dir.path}');
@@ -105,8 +105,7 @@ Future<int> collectGarbage({
   }
 
   // Same thing for snapshot files
-  entries = unusedFlutterTools.entries.toList()
-    ..sort((a, b) => a.value.compareTo(b.value));
+  entries = unusedFlutterTools.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
   for (var i = 0; i < entries.length - maxUnusedFlutterTools; i++) {
     final dir = entries[i].key;
     log.v('Deleting ${dir.path}');

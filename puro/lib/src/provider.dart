@@ -1,3 +1,12 @@
+/// A key for dependency injection. Each [Provider] identifies a single value
+/// in the [Scope] hierarchy.
+///
+/// Use [Provider] to define a lazy singleton:
+/// ```dart
+/// final myProvider = Provider<MyService>((scope) => MyService());
+/// ```
+/// Use [Provider.late] to declare a provider that must be explicitly [Scope.add]ed
+/// before first read.
 abstract class Provider<T> {
   factory Provider(T Function(Scope scope) create) = LazyProvider;
 
@@ -8,6 +17,11 @@ abstract class Provider<T> {
   ProviderNode<T> createNode(Scope scope);
 }
 
+/// Hierarchical scope for dependency injection.
+///
+/// Values are registered via [add] / [replace] and retrieved via [read].
+/// A [RootScope] owns the root DI container; [OverrideScope] layers overrides
+/// on top of a parent without mutating it.
 abstract class Scope {
   void add<T>(Provider<T> provider, T value);
   void replace<T>(Provider<T> provider, T value);
@@ -21,8 +35,7 @@ abstract class ProxyScope implements Scope {
   void add<V>(Provider<V> provider, V value) => parent.add(provider, value);
 
   @override
-  void replace<V>(Provider<V> provider, V value) =>
-      parent.replace(provider, value);
+  void replace<V>(Provider<V> provider, V value) => parent.replace(provider, value);
 
   @override
   V read<V>(Provider<V> provider) => parent.read(provider);

@@ -54,7 +54,9 @@ class JsonEditor {
 
   int _indentAt(int offset) {
     // Find start of line
-    while (_validOffset(offset - 1) && !_newlineAt(offset - 1)) offset--;
+    while (_validOffset(offset - 1) && !_newlineAt(offset - 1)) {
+      offset--;
+    }
     // Count number of spaces to the right
     var indent = 0;
     while (_spaceAt(offset)) {
@@ -166,8 +168,7 @@ class JsonEditor {
           indent = collectionIndent + indentLevel;
           if (trimmedCollectionSpace.isNotEmpty) {
             // Shift comments to a new line too
-            leading +=
-                _indentString(trimmedCollectionSpace, ' ' * indent) + '\n';
+            leading += '${_indentString(trimmedCollectionSpace, ' ' * indent)}\n';
           }
           trailing += '\n${' ' * collectionIndent}';
         } else {
@@ -178,7 +179,9 @@ class JsonEditor {
           } else {
             leading = ', ';
             replaceStart = collectionToken.stop - 1;
-            while (_spaceAt(replaceStart - 1)) replaceStart--;
+            while (_spaceAt(replaceStart - 1)) {
+              replaceStart--;
+            }
           }
           replaceEnd = collectionToken.stop - 1;
         }
@@ -194,13 +197,13 @@ class JsonEditor {
           if (lastChild is JsonWhitespace) {
             lastChildTrailingSpace = lastChild.trailing;
           }
-          replaceStart =
-              collectionElement.children.last.stop -
-              lastChildTrailingSpace.length;
+          replaceStart = collectionElement.children.last.stop - lastChildTrailingSpace.length;
           leading = ',${lastChildTrailingSpace.trimRight()}';
         } else {
           replaceStart = collectionToken.stop - 1;
-          while (_whitespaceAt(replaceStart - 1)) replaceStart--;
+          while (_whitespaceAt(replaceStart - 1)) {
+            replaceStart--;
+          }
         }
         leading += '\n';
         trailing = '\n${' ' * collectionIndent}';
@@ -290,8 +293,7 @@ class JsonEditor {
             'Attempt to index $selectorDesc (a ${element.runtimeType}) with int',
           );
         }
-        if (permissive &&
-            (selector < 0 || selector > element.children.length)) {
+        if (permissive && (selector < 0 || selector > element.children.length)) {
           return;
         }
         RangeError.checkValidIndex(
@@ -360,24 +362,26 @@ class JsonEditor {
     )[0];
     final singleLine = collectionStartLine == collectionEndLine;
     final leadingLines = leadingSpaceOf(token.value).split('\n');
-    final leadingLineAfterComma =
-        !singleLine && hasChildBefore && leadingLines.isNotEmpty
+    final leadingLineAfterComma = !singleLine && hasChildBefore && leadingLines.isNotEmpty
         ? leadingLines.first
         : '';
 
-    if (collectionElement.children.length == 1 &&
-        trailingSpaceAfterEOL.trim().isEmpty) {
+    if (collectionElement.children.length == 1 && trailingSpaceAfterEOL.trim().isEmpty) {
       // Only child and no comment, collapse collection
       replaceStart = collectionToken.start + 1;
       replaceEnd = collectionToken.stop - 1;
     } else {
       final removeLeadingComma = hasChildBefore && !hasChildAfter;
       replaceStart = token.start - (removeLeadingComma ? 1 : 0);
-      while (removeLeadingComma && _spaceAt(replaceStart - 1)) replaceStart--;
+      while (removeLeadingComma && _spaceAt(replaceStart - 1)) {
+        replaceStart--;
+      }
 
       final removeTrailingComma = hasChildAfter;
       replaceEnd = token.stop + (removeTrailingComma ? 1 : 0);
-      while (_spaceAt(replaceEnd)) replaceEnd++;
+      while (_spaceAt(replaceEnd)) {
+        replaceEnd++;
+      }
 
       content = leadingLineAfterComma + trailingSpaceAfterEOL;
       if (singleLine && hasChildBefore && hasChildAfter) {
@@ -395,10 +399,7 @@ class JsonEditor {
       }
     }
 
-    source =
-        source.substring(0, replaceStart) +
-        content +
-        source.substring(replaceEnd);
+    source = source.substring(0, replaceStart) + content + source.substring(replaceEnd);
   }
 
   Token<JsonElement>? query(List<Object> selectors, {bool permissive = true}) {
@@ -429,8 +430,7 @@ class JsonEditor {
             'Attempt to index $selectorDesc (a ${element.runtimeType}) with int',
           );
         }
-        if (permissive &&
-            (selector < 0 || selector > element.children.length)) {
+        if (permissive && (selector < 0 || selector > element.children.length)) {
           return null;
         }
         RangeError.checkValidIndex(
