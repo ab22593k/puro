@@ -105,6 +105,29 @@ void main() {
       check(v!.major).equals(3);
     });
 
+    test('does not strip leading uppercase V', () {
+      // Only lowercase v is stripped
+      check(tryParseVersion('V3.10.0')).isNull();
+    });
+
+    test('parses pre-release', () {
+      final v = tryParseVersion('1.0.0-alpha.1');
+      check(v).isNotNull();
+      check(v!.isPreRelease).isTrue();
+    });
+
+    test('parses build metadata', () {
+      final v = tryParseVersion('1.0.0+build.123');
+      check(v).isNotNull();
+      check(v!.build).isNotEmpty();
+    });
+
+    test('trims whitespace', () {
+      final v = tryParseVersion('  3.10.0  ');
+      check(v).isNotNull();
+      check(v!.major).equals(3);
+    });
+
     test('returns null for invalid input', () {
       check(tryParseVersion('')).isNull();
       check(tryParseVersion('not-a-version')).isNull();
