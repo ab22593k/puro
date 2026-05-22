@@ -615,7 +615,10 @@ Future<PuroGlobalPrefsModel> _readGlobalPrefs({required Scope scope}) async {
   final file = scope.read(globalPrefsJsonFileProvider);
   if (file.existsSync()) {
     final contents = await readAtomic(scope: scope, file: file);
-    model.mergeFromProto3Json(jsonDecode(contents));
+    model.mergeFromProto3Json(
+      jsonDecode(contents),
+      ignoreUnknownFields: true,
+    );
   }
   return model;
 }
@@ -632,7 +635,10 @@ Future<PuroGlobalPrefsModel> _updateGlobalPrefs({
     String? contents;
     if (handle.lengthSync() > 0) {
       contents = handle.readAllAsStringSync();
-      model.mergeFromProto3Json(jsonDecode(contents));
+      model.mergeFromProto3Json(
+        jsonDecode(contents),
+        ignoreUnknownFields: true,
+      );
     }
     await fn(model);
     if (!model.hasLegacyPubCache()) {
