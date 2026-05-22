@@ -21,7 +21,7 @@ Briefly describe the technical approach taken. Why was this implementation chose
 
 ### Automated Tests
 - [ ] Added or updated unit tests covering these changes.
-- [ ] Checked that all local tests pass (run `./puro/check.sh` locally).
+- [ ] Checked that all local tests pass (run `./check.sh` locally).
 
 ### Manual Verification
 Describe the manual steps you took to test these changes. Provide command lines and expected output where applicable.
