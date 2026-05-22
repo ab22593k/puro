@@ -45,7 +45,7 @@ class EnvUpgradeCommand extends PuroCommand {
     if (!environment.exists && args[0].toLowerCase() == 'puro') {
       throw CommandError(
         'Environment `$name` does not exist\n'
-        'Did you mean to run `puro upgrade-puro`?',
+        'Did you mean to run `puro self upgrade`?',
       );
     }
     environment.ensureExists();

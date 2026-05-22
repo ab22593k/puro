@@ -25,10 +25,9 @@ import 'commands/ls_versions.dart';
 import 'commands/prefs.dart';
 import 'commands/pub.dart';
 import 'commands/puro_install.dart';
-import 'commands/puro_uninstall.dart';
-import 'commands/puro_upgrade.dart';
 import 'commands/repl.dart';
 import 'commands/run.dart';
+import 'commands/self.dart';
 import 'commands/version.dart';
 import 'logger.dart';
 import 'provider.dart';
@@ -274,9 +273,8 @@ void main(List<String> args) {
         ..addCommand(RunCommand())
         ..addCommand(GenerateDocsCommand())
         ..addCommand(GenerateASTParserCommand())
-        ..addCommand(PuroUpgradeCommand())
+        ..addCommand(SelfCommand())
         ..addCommand(PuroInstallCommand())
-        ..addCommand(PuroUninstallCommand())
         ..addCommand(GcCommand())
         ..addCommand(LsVersionsCommand())
         ..addCommand(EngineCommand())

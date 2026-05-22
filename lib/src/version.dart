@@ -171,7 +171,7 @@ class PuroVersion {
     File? puroExecutable;
     if (scriptFile.basename == 'puro.dart' &&
         scriptFile.parent.basename == 'bin' &&
-        scriptFile.parent.parent.parent.childDirectory('.git').existsSync()) {
+        scriptFile.parent.parent.childDirectory('.git').existsSync()) {
       installationType = PuroInstallationType.development;
       packageRoot = scriptFile.parent.parent;
     } else if (scriptExtension == '.snapshot' && packageRoot != null) {
@@ -364,7 +364,7 @@ Future<CommandMessage?> checkIfUpdateAvailable({
       },
     );
     return CommandMessage(
-      'A new version of Puro is available, run `puro upgrade-puro` to upgrade',
+      'A new version of Puro is available, run `puro self upgrade` to upgrade',
       type: CompletionType.info,
     );
   } else if (shouldVersionCheck) {
