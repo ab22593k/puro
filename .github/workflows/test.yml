@@ -3,8 +3,16 @@ name: test
 on:
   push:
     branches: [main]
+    paths:
+      - 'lib/**'
+      - 'test/**'
+      - '.github/workflows/test.yml'
   pull_request:
     branches: [main]
+    paths:
+      - 'lib/**'
+      - 'test/**'
+      - '.github/workflows/test.yml'
 
 jobs:
   test:
