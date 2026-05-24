@@ -68,104 +68,105 @@ class BinReader extends Reader {
 
   void readType(String name, BinType c) {
     final delim = name.isEmpty ? '' : '$name.';
-    if (c is NamedBinType) {
-      switch (c.name) {
-        case 'Bool':
-          addByte(name, readByte());
-          break;
-        case 'UInt':
-          addUInt32(name, readUInt30());
-          break;
-        case 'UInt32':
-          addUInt32(name, readUInt32());
-          break;
-        case 'Double':
-          addDouble(name, readDouble());
-          break;
-        case 'ComponentFile':
-          final cl = fmt.classes[c.name]!;
-          for (final field in cl.fields.entries) {
-            final name = '$delim${c.name}.${field.key}';
-            if (field.key == 'libraries') {
-              readArr(name, libraryCount, c);
-              continue;
-            } else if (field.key == 'sourceMap') {
-              byteOffset = indices['sourceMapOffset']!;
-            } else if (field.key == 'constantsMapping') {
-              // Skip because we generate when serializing
-              continue;
-            } else if (field.key == 'canonicalNames') {
-              byteOffset = indices['binaryOffsetForCanonicalNames']!;
-            } else if (field.key == 'metadataPayloads') {
-              // Metadata is just opaque bytes
-              byteOffset = indices['binaryOffsetForMetadataPayloads']!;
-              final end = indices['binaryOffsetForMetadataMappings']!;
-              addBytes(name, readBytes(end - byteOffset));
-              continue;
-            } else if (field.key == 'metadataMappings') {
-              final t = (field.value as RListBinType).elementType;
-              readRList(
-                name,
-                indices['binaryOffsetForMetadataMappings']!,
-                indices['binaryOffsetForStringTable']!,
-                t,
-              );
-              continue;
-            } else if (field.key == 'componentIndex') {
-              break;
+    switch (c) {
+      case final NamedBinType c:
+        switch (c.name) {
+          case 'Bool':
+            addByte(name, readByte());
+            break;
+          case 'UInt':
+            addUInt32(name, readUInt30());
+            break;
+          case 'UInt32':
+            addUInt32(name, readUInt32());
+            break;
+          case 'Double':
+            addDouble(name, readDouble());
+            break;
+          case 'ComponentFile':
+            final cl = fmt.classes[c.name]!;
+            for (final field in cl.fields.entries) {
+              final name = '$delim${c.name}.${field.key}';
+              if (field.key == 'libraries') {
+                readArr(name, libraryCount, c);
+                continue;
+              } else if (field.key == 'sourceMap') {
+                byteOffset = indices['sourceMapOffset']!;
+              } else if (field.key == 'constantsMapping') {
+                // Skip because we generate when serializing
+                continue;
+              } else if (field.key == 'canonicalNames') {
+                byteOffset = indices['binaryOffsetForCanonicalNames']!;
+              } else if (field.key == 'metadataPayloads') {
+                // Metadata is just opaque bytes
+                byteOffset = indices['binaryOffsetForMetadataPayloads']!;
+                final end = indices['binaryOffsetForMetadataMappings']!;
+                addBytes(name, readBytes(end - byteOffset));
+                continue;
+              } else if (field.key == 'metadataMappings') {
+                final t = (field.value as RListBinType).elementType;
+                readRList(
+                  name,
+                  indices['binaryOffsetForMetadataMappings']!,
+                  indices['binaryOffsetForStringTable']!,
+                  t,
+                );
+                continue;
+              } else if (field.key == 'componentIndex') {
+                break;
+              }
+              readType('$delim${c.name}.${field.key}', field.value);
             }
-            readType('$delim${c.name}.${field.key}', field.value);
-          }
-        default:
-          final cl = fmt.classes[c.name]!;
-          for (final field in cl.fields.entries) {
-            readType('$delim${c.name}.${field.key}', field.value);
-          }
-      }
-    } else if (c is ListBinType) {
-      final length = readUInt30();
-      addUInt32(name, length);
-      for (var i = 0; i < length; i++) {
-        readType('${delim}element', c.elementType);
-      }
-    } else if (c is ArrayBinType) {
-      int realSize;
-      switch (c.size) {
-        case 'endOffsets.last':
-          realSize = getParentUInt32(name, 'endOffsets.element');
-        case 'length':
-          if (!name.endsWith('.UriSource.source') && !name.endsWith('.UriSource.sourceIndex')) {
+          default:
+            final cl = fmt.classes[c.name]!;
+            for (final field in cl.fields.entries) {
+              readType('$delim${c.name}.${field.key}', field.value);
+            }
+        }
+      case final ListBinType c:
+        final length = readUInt30();
+        addUInt32(name, length);
+        for (var i = 0; i < length; i++) {
+          readType('${delim}element', c.elementType);
+        }
+      case final ArrayBinType c:
+        int realSize;
+        switch (c.size) {
+          case 'endOffsets.last':
+            realSize = getParentUInt32(name, 'endOffsets.element');
+          case 'length':
+            if (!name.endsWith('.UriSource.source') && !name.endsWith('.UriSource.sourceIndex')) {
+              throw UnimplementedError('Unknown array size: ${c.size} in $name');
+            }
+            realSize = getParentUInt32(name, 'length');
+          case 'classes.length + 1':
+            if (!name.endsWith('.Library.classOffsets')) {
+              throw UnimplementedError('Unknown array size: ${c.size} in $name');
+            }
+            realSize = getParentUInt32(name, 'classes') + 1;
+          case 'procedures.length + 1':
+            if (!name.endsWith('.Library.procedureOffsets')) {
+              throw UnimplementedError('Unknown array size: ${c.size} in $name');
+            }
+            realSize = getParentUInt32(name, 'procedures') + 1;
+          default:
             throw UnimplementedError('Unknown array size: ${c.size} in $name');
-          }
-          realSize = getParentUInt32(name, 'length');
-        case 'classes.length + 1':
-          if (!name.endsWith('.Library.classOffsets')) {
-            throw UnimplementedError('Unknown array size: ${c.size} in $name');
-          }
-          realSize = getParentUInt32(name, 'classes') + 1;
-        case 'procedures.length + 1':
-          if (!name.endsWith('.Library.procedureOffsets')) {
-            throw UnimplementedError('Unknown array size: ${c.size} in $name');
-          }
-          realSize = getParentUInt32(name, 'procedures') + 1;
-        default:
-          throw UnimplementedError('Unknown array size: ${c.size} in $name');
-      }
-      for (var i = 0; i < realSize; i++) {
-        readType('${delim}element', c.elementType);
-      }
-    } else if (c is OptionBinType) {
-      final hasValue = readByte();
-      addByte(name, hasValue);
-      if (hasValue != 0) {
-        assert(hasValue == 1);
-        readType('${delim}value', c.elementType);
-      }
-    } else if (c is PairBinType) {
-      readType('${delim}first', c.firstType);
-      readType('${delim}second', c.secondType);
-    } else {
-      throw UnimplementedError('Unknown type: $c');
+        }
+        for (var i = 0; i < realSize; i++) {
+          readType('${delim}element', c.elementType);
+        }
+      case final OptionBinType c:
+        final hasValue = readByte();
+        addByte(name, hasValue);
+        if (hasValue != 0) {
+          assert(hasValue == 1);
+          readType('${delim}value', c.elementType);
+        }
+      case final PairBinType c:
+        readType('${delim}first', c.firstType);
+        readType('${delim}second', c.secondType);
+      default:
+        throw UnimplementedError('Unknown type: $c');
     }
   }
 
@@ -176,7 +177,7 @@ class BinReader extends Reader {
       final name = entry.key;
       if (name == 'libraryOffsets') break;
       final type = entry.value;
-      if (type is NamedBinType && type.name == 'UInt32') {
+      if (type case NamedBinType(name: 'UInt32')) {
         componentIndexSize += 4;
       } else {
         throw UnimplementedError(
@@ -314,42 +315,32 @@ abstract class BinType {
     Map<String, dynamic> typeSchemas,
     Set<String> enumNames,
   ) {
-    if (schema is String) {
-      if (enumNames.contains(schema)) {
-        return NamedBinType('Byte');
-      }
-      return NamedBinType(schema);
-    } else if (schema['option'] != null) {
-      return OptionBinType(
-        BinType.fromSchema(schema['option'], typeSchemas, enumNames),
-      );
-    } else if (schema['list'] != null) {
-      return ListBinType(
-        BinType.fromSchema(schema['list'], typeSchemas, enumNames),
-      );
-    } else if (schema['rlist'] != null) {
-      return RListBinType(
-        BinType.fromSchema(schema['rlist'], typeSchemas, enumNames),
-      );
-    } else if (schema['pair'] != null) {
-      return PairBinType(
-        BinType.fromSchema(schema['pair'][0], typeSchemas, enumNames),
-        BinType.fromSchema(schema['pair'][1], typeSchemas, enumNames),
-      );
-    } else if (schema['array'] != null) {
-      return ArrayBinType(
-        schema['array'][0] as String,
-        BinType.fromSchema(schema['array'][1], typeSchemas, enumNames),
-      );
-    } else if (schema['union'] != null) {
-      return NamedBinType(typeSchemas[schema['union'][0]]![1] as String);
-    } else if (schema['ifPrivate'] != null) {
-      return IfPrivateBinType(
-        BinType.fromSchema(schema['ifPrivate'], typeSchemas, enumNames),
-      );
-    } else {
-      throw UnimplementedError('Unknown type: $schema');
-    }
+    return switch (schema) {
+      final String str when enumNames.contains(str) => NamedBinType('Byte'),
+      final String str => NamedBinType(str),
+      {'option': final opt} => OptionBinType(
+        BinType.fromSchema(opt, typeSchemas, enumNames),
+      ),
+      {'list': final lst} => ListBinType(
+        BinType.fromSchema(lst, typeSchemas, enumNames),
+      ),
+      {'rlist': final rlist} => RListBinType(
+        BinType.fromSchema(rlist, typeSchemas, enumNames),
+      ),
+      {'pair': final pair} => PairBinType(
+        BinType.fromSchema(pair[0], typeSchemas, enumNames),
+        BinType.fromSchema(pair[1], typeSchemas, enumNames),
+      ),
+      {'array': final arr} => ArrayBinType(
+        arr[0] as String,
+        BinType.fromSchema(arr[1], typeSchemas, enumNames),
+      ),
+      {'union': final union} => NamedBinType(typeSchemas[union[0]]![1] as String),
+      {'ifPrivate': final ifPrivate} => IfPrivateBinType(
+        BinType.fromSchema(ifPrivate, typeSchemas, enumNames),
+      ),
+      _ => throw UnimplementedError('Unknown type: $schema'),
+    };
   }
 }
 

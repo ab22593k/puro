@@ -61,40 +61,42 @@ class EvalImport {
     final hide = <String>{};
     import = import.substring(uriMatch.end);
     String? lastModifier;
+    outer:
     while (import.isNotEmpty) {
       var modifier = import.substring(0, 1);
       if (modifier == ',') {
-        if (lastModifier == null) break;
+        if (lastModifier == null) break outer;
         modifier = lastModifier;
       }
-      if (modifier == '=') {
-        final identifierMatch = _identifierRegex.matchAsPrefix(import, 1);
-        as = identifierMatch?.group(0) ?? uri.pathSegments.first;
-        import = import.substring(identifierMatch?.end ?? 1);
-      } else if (modifier == '+') {
-        final identifierMatch = _identifierRegex.matchAsPrefix(import, 1);
-        if (identifierMatch == null) {
-          throw ArgumentError.value(
-            import,
-            'import',
-            'name expected after `+`',
-          );
-        }
-        show.add(identifierMatch.group(0)!);
-        import = import.substring(identifierMatch.end);
-      } else if (modifier == '-') {
-        final identifierMatch = _identifierRegex.matchAsPrefix(import, 1);
-        if (identifierMatch == null) {
-          throw ArgumentError.value(
-            import,
-            'import',
-            'name expected after `-`',
-          );
-        }
-        hide.add(identifierMatch.group(0)!);
-        import = import.substring(identifierMatch.end);
-      } else {
-        break;
+      switch (modifier) {
+        case '=':
+          final identifierMatch = _identifierRegex.matchAsPrefix(import, 1);
+          as = identifierMatch?.group(0) ?? uri.pathSegments.first;
+          import = import.substring(identifierMatch?.end ?? 1);
+        case '+':
+          final identifierMatch = _identifierRegex.matchAsPrefix(import, 1);
+          if (identifierMatch == null) {
+            throw ArgumentError.value(
+              import,
+              'import',
+              'name expected after `+`',
+            );
+          }
+          show.add(identifierMatch.group(0)!);
+          import = import.substring(identifierMatch.end);
+        case '-':
+          final identifierMatch = _identifierRegex.matchAsPrefix(import, 1);
+          if (identifierMatch == null) {
+            throw ArgumentError.value(
+              import,
+              'import',
+              'name expected after `-`',
+            );
+          }
+          hide.add(identifierMatch.group(0)!);
+          import = import.substring(identifierMatch.end);
+        default:
+          break outer;
       }
       lastModifier = modifier;
     }
@@ -272,19 +274,15 @@ class EvalContext {
 
   ParseResult transform(String code) {
     final importStr = imports.map((e) => '$e\n').join();
-    final parseResult = parse(code);
-    final node = parseResult.node;
-    if (node is Expression) {
-      return parse('${importStr}Future<dynamic> main() async =>\n$code\n;');
-    } else if (node is CompilationUnit) {
-      return parse('$importStr$code');
-    } else {
-      if (node != null && ReturnCheckVisitor.check(node)) {
-        return parse('${importStr}Future<dynamic> main() async {\n$code\n}');
-      } else {
-        return parse('${importStr}Future<void> main() async {\n$code\n}');
-      }
-    }
+    final node = parse(code).node;
+    return switch (node) {
+      Expression _ => parse('${importStr}Future<dynamic> main() async =>\n$code\n;'),
+      CompilationUnit _ => parse('$importStr$code'),
+      _ when node != null && ReturnCheckVisitor.check(node) => parse(
+        '${importStr}Future<dynamic> main() async {\n$code\n}',
+      ),
+      _ => parse('${importStr}Future<void> main() async {\n$code\n}'),
+    };
   }
 }
 

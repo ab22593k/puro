@@ -16,12 +16,15 @@ extension NumExtensions on num {
     bool minusSign = true,
     bool plusSign = false,
   }) {
-    if (this == double.infinity) {
-      return plusSign ? '+∞' : '∞';
-    } else if (this == double.negativeInfinity) {
-      return minusSign ? '-∞' : '∞';
-    } else if (identical(this, double.nan)) {
-      return 'NaN';
+    switch (this) {
+      case == double.infinity:
+        return plusSign ? '+∞' : '∞';
+      case == double.negativeInfinity:
+        return minusSign ? '-∞' : '∞';
+      case _ when identical(this, double.nan):
+        return 'NaN';
+      default:
+        break;
     }
     final nnn = abs().toString();
     var nnnIter = nnn.split('').skipWhile((c) => c != '.').skip(1);
@@ -84,15 +87,10 @@ extension NumExtensions on num {
     bool plusSign = false,
     bool metric = false,
   }) {
-    if (this == double.infinity) {
-      return plusSign ? '+∞' : '∞';
-    } else if (this == double.negativeInfinity) {
-      return minusSign ? '-∞' : '∞';
-    } else if (identical(this, double.nan)) {
-      return 'NaN';
-    }
-
     return switch (this) {
+      == double.infinity => plusSign ? '+∞' : '∞',
+      == double.negativeInfinity => minusSign ? '-∞' : '∞',
+      _ when identical(this, double.nan) => 'NaN',
       == 0 => pretty(precision: 0, plusSign: plusSign, minusSign: minusSign),
       < 1 => pretty(precision: 1, plusSign: plusSign, minusSign: minusSign),
       < 100 => pretty(precision: 0, plusSign: plusSign, minusSign: minusSign),
@@ -131,9 +129,14 @@ extension DurationExtensions on Duration {
   String pretty({String before = 'before', bool abbr = false}) {
     if (before.isNotEmpty) before = ' $before';
     var s = inMicroseconds / 1000000;
-    if (s == double.infinity) return 'never';
-    if (s == double.negativeInfinity) return 'forever$before';
-    if (identical(s, double.nan)) return 'unknown';
+    switch (s) {
+      case == double.infinity:
+        return 'never';
+      case == double.negativeInfinity:
+        return 'forever$before';
+      case _ when identical(s, double.nan):
+        return 'unknown';
+    }
 
     var sr = '';
     if (s < 0) {

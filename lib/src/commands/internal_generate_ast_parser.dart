@@ -338,31 +338,23 @@ String generateAstForSchemas(Map<int, dynamic> schemas, {String? comment}) {
     'String': RawType('String'),
   };
 
-  DartType getType(dynamic data) {
-    if (data is String) {
-      return types[fixName(data)] ?? (throw AssertionError('Unknown type $data'));
-    } else if (data['list'] != null) {
-      return ListType()..element = getType(data['list']);
-    } else if (data['rlist'] != null) {
-      return ListType()..element = getType(data['rlist']);
-    } else if (data['option'] != null) {
-      return OptionType()..element = getType(data['option']);
-    } else if (data['ifPrivate'] != null) {
-      return OptionType()..element = getType(data['ifPrivate']);
-    } else if (data['pair'] != null) {
-      return PairType()
-        ..first = getType(data['pair'][0])
-        ..second = getType(data['pair'][1]);
-    } else if (data['union'] != null) {
-      return UnionType()
-        ..first = getType(data['union'][0])
-        ..second = getType(data['union'][1]);
-    } else if (data['array'] != null) {
-      return ListType()..element = getType(data['array'][0]);
-    } else {
-      throw AssertionError('Unknown type $data');
-    }
-  }
+  DartType getType(dynamic data) => switch (data) {
+    final String name => types[fixName(name)] ?? (throw AssertionError('Unknown type $name')),
+    {'list': final inner} => ListType()..element = getType(inner),
+    {'rlist': final inner} => ListType()..element = getType(inner),
+    {'option': final inner} => OptionType()..element = getType(inner),
+    {'ifPrivate': final inner} => OptionType()..element = getType(inner),
+    {'pair': final pair} =>
+      PairType()
+        ..first = getType(pair[0])
+        ..second = getType(pair[1]),
+    {'union': final union} =>
+      UnionType()
+        ..first = getType(union[0])
+        ..second = getType(union[1]),
+    {'array': final arr} => ListType()..element = getType(arr[0]),
+    _ => throw AssertionError('Unknown type $data'),
+  };
 
   DartType resolveMerge(DartType from, DartType to) {
     final result = const {
@@ -480,39 +472,41 @@ String generateAstForSchemas(Map<int, dynamic> schemas, {String? comment}) {
   if (comment != null) {
     outAst.writeln('${comment.split('\n').map((e) => '// $e').join('\n')}\n');
   }
-
   for (final tpe in types.values) {
-    if (tpe is ClassType) {
-      if (tpe.abstract) {
-        outAst.write('abstract ');
-      }
-      outAst.write('class ${tpe.name}');
-      if (tpe.parent != null) {
-        outAst.write(' extends ${tpe.parent!.name}');
-      }
-      outAst.writeln(' {');
-      if (!tpe.abstract && tpe.fields.isNotEmpty) {
-        outAst.writeln('  ${tpe.name}({');
-        for (final field in tpe.fields.entries) {
-          outAst.write('    ');
-          if (field.value is OptionType) {
-            outAst.writeln('this.${field.key},');
-          } else {
-            outAst.writeln('required this.${field.key},');
-          }
+    switch (tpe) {
+      case final ClassType c:
+        if (c.abstract) {
+          outAst.write('abstract ');
         }
-        outAst.writeln('  });');
-      }
-      for (final field in tpe.fields.entries) {
-        outAst.writeln('  final ${field.value.name} ${field.key};');
-      }
-      outAst.writeln('}');
-    } else if (tpe is EnumType) {
-      outAst.writeln('enum ${tpe.name} {');
-      for (final value in tpe.values) {
-        outAst.writeln('  $value,');
-      }
-      outAst.writeln('}');
+        outAst.write('class ${c.name}');
+        if (c.parent != null) {
+          outAst.write(' extends ${c.parent!.name}');
+        }
+        outAst.writeln(' {');
+        if (!c.abstract && c.fields.isNotEmpty) {
+          outAst.writeln('  ${c.name}({');
+          for (final field in c.fields.entries) {
+            outAst.write('    ');
+            if (field.value is OptionType) {
+              outAst.writeln('this.${field.key},');
+            } else {
+              outAst.writeln('required this.${field.key},');
+            }
+          }
+          outAst.writeln('  });');
+        }
+        for (final field in c.fields.entries) {
+          outAst.writeln('  final ${field.value.name} ${field.key};');
+        }
+        outAst.writeln('}');
+      case final EnumType e:
+        outAst.writeln('enum ${e.name} {');
+        for (final value in e.values) {
+          outAst.writeln('  $value,');
+        }
+        outAst.writeln('}');
+      default:
+        break;
     }
   }
 
@@ -529,13 +523,10 @@ class RawType extends DartType {
   @override
   final String name;
   @override
-  DartType merge(DartType other) {
-    if (other is RawType && name == other.name) {
-      return this;
-    } else {
-      throw AssertionError('Type mismatch: $name != ${other.name}');
-    }
-  }
+  DartType merge(DartType other) => switch (other) {
+    final RawType r when name == r.name => this,
+    _ => throw AssertionError('Type mismatch: $name != ${other.name}'),
+  };
 }
 
 class ClassType extends DartType {
@@ -564,15 +555,13 @@ class PairType extends DartType {
   @override
   String get name => '(${first.name}, ${second.name})';
   @override
-  DartType merge(DartType other) {
-    if (other is PairType) {
-      return PairType()
-        ..first = first.merge(other.first)
-        ..second = second.merge(other.second);
-    } else {
-      throw AssertionError('Type mismatch: $name != ${other.name}');
-    }
-  }
+  DartType merge(DartType other) => switch (other) {
+    final PairType p =>
+      PairType()
+        ..first = first.merge(p.first)
+        ..second = second.merge(p.second),
+    _ => throw AssertionError('Type mismatch: $name != ${other.name}'),
+  };
 }
 
 class ListType extends DartType {
@@ -580,13 +569,10 @@ class ListType extends DartType {
   @override
   String get name => 'List<${element.name}>';
   @override
-  DartType merge(DartType other) {
-    if (other is ListType) {
-      return ListType()..element = element.merge(other.element);
-    } else {
-      throw AssertionError('Type mismatch: $name != ${other.name}');
-    }
-  }
+  DartType merge(DartType other) => switch (other) {
+    final ListType l => ListType()..element = element.merge(l.element),
+    _ => throw AssertionError('Type mismatch: $name != ${other.name}'),
+  };
 }
 
 class OptionType extends DartType {
@@ -610,12 +596,16 @@ class UnionType extends DartType {
   late DartType second;
   @override
   String get name {
-    final firstName = first is UnionType
-        ? first.name
-        : (first is ClassType ? (first as ClassType).parent!.name : throw AssertionError());
-    final secondName = second is UnionType
-        ? second.name
-        : (second is ClassType ? (second as ClassType).parent!.name : throw AssertionError());
+    final firstName = switch (first) {
+      final UnionType u => u.name,
+      final ClassType c => c.parent!.name,
+      _ => throw AssertionError(),
+    };
+    final secondName = switch (second) {
+      final UnionType u => u.name,
+      final ClassType c => c.parent!.name,
+      _ => throw AssertionError(),
+    };
     assert(firstName == secondName);
     return firstName;
   }
@@ -641,11 +631,8 @@ class EnumType extends DartType {
   late String name;
   final values = <String>{};
   @override
-  DartType merge(DartType other) {
-    if (other is EnumType && name == other.name) {
-      return this;
-    } else {
-      throw AssertionError('Type mismatch: $name != ${other.name}');
-    }
-  }
+  DartType merge(DartType other) => switch (other) {
+    final EnumType e when name == e.name => this,
+    _ => throw AssertionError('Type mismatch: $name != ${other.name}'),
+  };
 }

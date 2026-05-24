@@ -37,33 +37,14 @@ enum EngineBuildTarget {
   final EngineOS os;
   final EngineArch arch;
 
-  static EngineBuildTarget from(EngineOS os, EngineArch arch) {
-    switch (os) {
-      case EngineOS.windows:
-        switch (arch) {
-          case EngineArch.x64:
-            return EngineBuildTarget.windowsX64;
-          case EngineArch.arm64:
-            break;
-        }
-        break;
-      case EngineOS.macOS:
-        switch (arch) {
-          case EngineArch.x64:
-            return EngineBuildTarget.macosX64;
-          case EngineArch.arm64:
-            return EngineBuildTarget.macosArm64;
-        }
-      case EngineOS.linux:
-        switch (arch) {
-          case EngineArch.x64:
-            return EngineBuildTarget.linuxX64;
-          case EngineArch.arm64:
-            return EngineBuildTarget.linuxArm64;
-        }
-    }
-    throw AssertionError('Unsupported build target: $os $arch');
-  }
+  static EngineBuildTarget from(EngineOS os, EngineArch arch) => switch ((os, arch)) {
+    (EngineOS.windows, EngineArch.x64) => EngineBuildTarget.windowsX64,
+    (EngineOS.macOS, EngineArch.x64) => EngineBuildTarget.macosX64,
+    (EngineOS.macOS, EngineArch.arm64) => EngineBuildTarget.macosArm64,
+    (EngineOS.linux, EngineArch.x64) => EngineBuildTarget.linuxX64,
+    (EngineOS.linux, EngineArch.arm64) => EngineBuildTarget.linuxArm64,
+    _ => throw AssertionError('Unsupported build target: $os $arch'),
+  };
 
   static Future<EngineBuildTarget> query({required Scope scope}) async {
     final EngineOS os;

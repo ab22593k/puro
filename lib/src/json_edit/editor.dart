@@ -23,19 +23,20 @@ class JsonEditor {
   Object? _wrapWithSelector(Iterable<Object> selectors, Object? value) {
     if (selectors.isEmpty) return value;
     final selector = selectors.last;
-    if (selector is String) {
-      value = <String, dynamic>{selector: value};
-    } else if (selector is int) {
-      RangeError.checkValueInInterval(
-        selector,
-        0,
-        0,
-        'selector',
-        'in data${selectors.map((e) => '[${jsonEncode(e)}]').join()}',
-      );
-      value = <dynamic>[value];
-    } else {
-      throw ArgumentError('Unrecognized selector: ${selector.runtimeType}');
+    switch (selector) {
+      case final String s:
+        value = <String, dynamic>{s: value};
+      case final int i:
+        RangeError.checkValueInInterval(
+          i,
+          0,
+          0,
+          'selector',
+          'in data${selectors.map((e) => '[${jsonEncode(e)}]').join()}',
+        );
+        value = <dynamic>[value];
+      default:
+        throw ArgumentError('Unrecognized selector: ${selector.runtimeType}');
     }
     return _wrapWithSelector(selectors.take(selectors.length - 1), value);
   }
@@ -103,38 +104,39 @@ class JsonEditor {
         }
       }
       var element = token.value;
-      if (element is JsonMapEntry) {
-        token = element.value;
-        element = token.value;
-      } else if (element is JsonWhitespace) {
-        token = element.body;
-        element = token.value;
+      switch (element) {
+        case JsonMapEntry(value: final inner) || JsonWhitespace(body: final inner):
+          token = inner;
+          element = token.value;
+        default:
+          break;
       }
       collectionToken = token;
       collectionSelector = selector;
-      if (selector is String) {
-        if (element is! JsonMap) {
-          throw ArgumentError(
-            'Attempt to index $selectorDesc (a ${element.runtimeType}) with String',
+      switch (selector) {
+        case final String str:
+          if (element is! JsonMap) {
+            throw ArgumentError(
+              'Attempt to index $selectorDesc (a ${element.runtimeType}) with String',
+            );
+          }
+          token = element[str];
+        case final int idx:
+          if (element is! JsonArray) {
+            throw ArgumentError(
+              'Attempt to index $selectorDesc (a ${element.runtimeType}) with int',
+            );
+          }
+          RangeError.checkValidIndex(
+            idx,
+            element.children,
+            'selector',
+            element.children.length + 1,
+            'in $selectorDesc',
           );
-        }
-        token = element[selector];
-      } else if (selector is int) {
-        if (element is! JsonArray) {
-          throw ArgumentError(
-            'Attempt to index $selectorDesc (a ${element.runtimeType}) with int',
-          );
-        }
-        RangeError.checkValidIndex(
-          selector,
-          element.children,
-          'selector',
-          element.children.length + 1,
-          'in $selectorDesc',
-        );
-        token = selector == element.children.length ? null : element[selector];
-      } else {
-        throw ArgumentError('Unrecognized selector: ${selector.runtimeType}');
+          token = idx == element.children.length ? null : element[idx];
+        default:
+          throw ArgumentError('Unrecognized selector: ${selector.runtimeType}');
       }
       selectorDesc += '[${jsonEncode(selector)}]';
     }
@@ -220,12 +222,12 @@ class JsonEditor {
     } else {
       var element = token.value;
       var overwriteToken = token;
-      if (element is JsonMapEntry) {
-        overwriteToken = element.value;
+      if (element case JsonMapEntry(:final value)) {
+        overwriteToken = value;
         element = overwriteToken.value;
       }
-      if (element is JsonWhitespace) {
-        overwriteToken = element.body;
+      if (element case JsonWhitespace(:final body)) {
+        overwriteToken = body;
         element = overwriteToken.value;
       }
       if (collectionStartLine == collectionEndLine) {
@@ -270,42 +272,43 @@ class JsonEditor {
     for (var i = 0; i < selectors.length; i++) {
       final selector = selectors[i];
       var element = token!.value;
-      if (element is JsonMapEntry) {
-        token = element.value;
-        element = token.value;
-      } else if (element is JsonWhitespace) {
-        token = element.body;
-        element = token.value;
+      switch (element) {
+        case JsonMapEntry(value: final inner) || JsonWhitespace(body: final inner):
+          token = inner;
+          element = token.value;
+        default:
+          break;
       }
       collectionToken = token;
-      if (selector is String) {
-        if (element is! JsonMap) {
-          if (permissive) return;
-          throw ArgumentError(
-            'Attempt to index $selectorDesc (a ${element.runtimeType}) with String',
+      switch (selector) {
+        case final String str:
+          if (element is! JsonMap) {
+            if (permissive) return;
+            throw ArgumentError(
+              'Attempt to index $selectorDesc (a ${element.runtimeType}) with String',
+            );
+          }
+          token = element[str];
+        case final int idx:
+          if (element is! JsonArray) {
+            if (permissive) return;
+            throw ArgumentError(
+              'Attempt to index $selectorDesc (a ${element.runtimeType}) with int',
+            );
+          }
+          if (permissive && (idx < 0 || idx > element.children.length)) {
+            return;
+          }
+          RangeError.checkValidIndex(
+            idx,
+            element.children,
+            'selector',
+            element.children.length + 1,
+            'in $selectorDesc',
           );
-        }
-        token = element[selector];
-      } else if (selector is int) {
-        if (element is! JsonArray) {
-          if (permissive) return;
-          throw ArgumentError(
-            'Attempt to index $selectorDesc (a ${element.runtimeType}) with int',
-          );
-        }
-        if (permissive && (selector < 0 || selector > element.children.length)) {
-          return;
-        }
-        RangeError.checkValidIndex(
-          selector,
-          element.children,
-          'selector',
-          element.children.length + 1,
-          'in $selectorDesc',
-        );
-        token = selector == element.children.length ? null : element[selector];
-      } else {
-        throw ArgumentError('Unrecognized selector: ${selector.runtimeType}');
+          token = idx == element.children.length ? null : element[idx];
+        default:
+          throw ArgumentError('Unrecognized selector: ${selector.runtimeType}');
       }
       selectorDesc += '[${jsonEncode(selector)}]';
       if (token == null) {
@@ -325,25 +328,17 @@ class JsonEditor {
 
     final collectionElement = collectionToken.value;
 
-    String trailingSpaceOf(JsonElement element) {
-      if (element is JsonMapEntry) {
-        element = element.value.value;
-      }
-      if (element is JsonWhitespace) {
-        return element.trailing;
-      }
-      return '';
-    }
+    String trailingSpaceOf(JsonElement element) => switch (element) {
+      JsonMapEntry(value: Token(value: JsonWhitespace(:final trailing))) => trailing,
+      JsonWhitespace(:final trailing) => trailing,
+      _ => '',
+    };
 
-    String leadingSpaceOf(JsonElement element) {
-      if (element is JsonMapEntry) {
-        return element.beforeKey;
-      } else if (element is JsonWhitespace) {
-        return element.leading;
-      } else {
-        return '';
-      }
-    }
+    String leadingSpaceOf(JsonElement element) => switch (element) {
+      JsonMapEntry(:final beforeKey) => beforeKey,
+      JsonWhitespace(:final leading) => leading,
+      _ => '',
+    };
 
     final trailingSpace = trailingSpaceOf(token.value);
     final trailingSpaceNewline = trailingSpace.indexOf('\n');
@@ -408,41 +403,42 @@ class JsonEditor {
     for (var i = 0; i < selectors.length; i++) {
       final selector = selectors[i];
       var element = token!.value;
-      if (element is JsonMapEntry) {
-        token = element.value;
-        element = token.value;
-      } else if (element is JsonWhitespace) {
-        token = element.body;
-        element = token.value;
+      switch (element) {
+        case JsonMapEntry(value: final inner) || JsonWhitespace(body: final inner):
+          token = inner;
+          element = token.value;
+        default:
+          break;
       }
-      if (selector is String) {
-        if (element is! JsonMap) {
-          if (permissive) return null;
-          throw ArgumentError(
-            'Attempt to index $selectorDesc (a ${element.runtimeType}) with String',
+      switch (selector) {
+        case final String str:
+          if (element is! JsonMap) {
+            if (permissive) return null;
+            throw ArgumentError(
+              'Attempt to index $selectorDesc (a ${element.runtimeType}) with String',
+            );
+          }
+          token = element[str];
+        case final int idx:
+          if (element is! JsonArray) {
+            if (permissive) return null;
+            throw ArgumentError(
+              'Attempt to index $selectorDesc (a ${element.runtimeType}) with int',
+            );
+          }
+          if (permissive && (idx < 0 || idx > element.children.length)) {
+            return null;
+          }
+          RangeError.checkValidIndex(
+            idx,
+            element.children,
+            'selector',
+            element.children.length + 1,
+            'in $selectorDesc',
           );
-        }
-        token = element[selector];
-      } else if (selector is int) {
-        if (element is! JsonArray) {
-          if (permissive) return null;
-          throw ArgumentError(
-            'Attempt to index $selectorDesc (a ${element.runtimeType}) with int',
-          );
-        }
-        if (permissive && (selector < 0 || selector > element.children.length)) {
-          return null;
-        }
-        RangeError.checkValidIndex(
-          selector,
-          element.children,
-          'selector',
-          element.children.length + 1,
-          'in $selectorDesc',
-        );
-        token = selector == element.children.length ? null : element[selector];
-      } else {
-        throw ArgumentError('Unrecognized selector: ${selector.runtimeType}');
+          token = idx == element.children.length ? null : element[idx];
+        default:
+          throw ArgumentError('Unrecognized selector: ${selector.runtimeType}');
       }
       selectorDesc += '[${jsonEncode(selector)}]';
       if (token == null) {
