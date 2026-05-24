@@ -69,6 +69,7 @@ class FlutterCacheConfig {
   late final File engineVersionFile = cacheDir.childFile(
     'engine-dart-sdk.stamp',
   );
+  late final File versionStampFile = cacheDir.childFile('.version_stamp');
   String? get engineVersion =>
       engineVersionFile.existsSync() ? engineVersionFile.readAsStringSync().trim() : null;
   String? get flutterToolsStamp =>

@@ -152,22 +152,30 @@ Future<bool> downloadSharedEngine({
   final sharedCache = config.getFlutterCache(engineCommit, patched: false);
   var didDownloadEngine = false;
 
-  // Delete the current cache if it's corrupt
+  // Fast-path: validate cache with cheap stamp + file-existence check.
+  // Falls back to `dart --version` only when the stamp is missing or stale.
   if (sharedCache.exists) {
-    try {
-      await ProgressNode.of(scope).wrap((scope, node) async {
-        node.description = 'Checking if dart works';
-        await runProcess(
-          scope,
-          sharedCache.dartSdk.dartExecutable.path,
-          ['--version'],
-          throwOnFailure: true,
-          environment: {'PUB_CACHE': config.legacyPubCacheDir.path},
-        );
-      });
-    } catch (exception) {
-      log.w('dart version check failed, deleting cache');
-      sharedCache.cacheDir.deleteSync(recursive: true);
+    final stampMatches =
+        sharedCache.versionStampFile.existsSync() &&
+        sharedCache.versionStampFile.readAsStringSync().trim() == engineCommit &&
+        sharedCache.dartSdk.dartExecutable.existsSync();
+    if (!stampMatches) {
+      try {
+        await ProgressNode.of(scope).wrap((scope, node) async {
+          node.description = 'Checking if dart works';
+          await runProcess(
+            scope,
+            sharedCache.dartSdk.dartExecutable.path,
+            ['--version'],
+            throwOnFailure: true,
+            environment: {'PUB_CACHE': config.legacyPubCacheDir.path},
+          );
+        });
+        sharedCache.versionStampFile.writeAsStringSync(engineCommit);
+      } catch (exception) {
+        log.w('dart version check failed, deleting cache');
+        sharedCache.cacheDir.deleteSync(recursive: true);
+      }
     }
   }
 
@@ -217,6 +225,8 @@ Future<bool> downloadSharedEngine({
         destination: sharedCache.cacheDir,
       );
     });
+
+    sharedCache.versionStampFile.writeAsStringSync(engineCommit);
 
     zipFile.deleteSync();
 
