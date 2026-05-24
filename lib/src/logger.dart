@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:clock/clock.dart';
-import 'package:neoansi/neoansi.dart';
+import 'package:quectocolors/quectocolors.dart';
 
 import 'extensions.dart';
 import 'provider.dart';
@@ -80,11 +80,11 @@ class PuroLogger {
         buf.write(
           format.color(
             '${elapsed.pretty().padLeft(4)} ',
-            foregroundColor: elapsed > 1000
-                ? Ansi8BitColor.red
+            foreground: elapsed > 1000
+                ? QuectoColors.red
                 : elapsed > 100
-                ? Ansi8BitColor.orange1
-                : Ansi8BitColor.green,
+                ? QuectoColors.ansi256(208)
+                : QuectoColors.green,
             bold: true,
           ),
         );
@@ -98,7 +98,7 @@ class PuroLogger {
       buf.write(
         format.color(
           levelPrefixes[event.level]!,
-          foregroundColor: levelColors[event.level]!,
+          foreground: levelColors[event.level]!,
           bold: true,
         ),
       );
@@ -148,12 +148,12 @@ class PuroLogger {
     LogLevel.debug: '[D]',
   };
 
-  static const levelColors = {
-    LogLevel.wtf: Ansi8BitColor.pink1,
-    LogLevel.error: Ansi8BitColor.red,
-    LogLevel.warning: Ansi8BitColor.orange1,
-    LogLevel.verbose: Ansi8BitColor.grey62,
-    LogLevel.debug: Ansi8BitColor.grey,
+  static final levelColors = {
+    LogLevel.wtf: QuectoColors.ansi256(205),
+    LogLevel.error: QuectoColors.red,
+    LogLevel.warning: QuectoColors.ansi256(208),
+    LogLevel.verbose: QuectoColors.ansi256(250),
+    LogLevel.debug: QuectoColors.grey,
   };
 
   static final provider = Provider<PuroLogger>.late();

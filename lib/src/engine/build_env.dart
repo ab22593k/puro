@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:neoansi/neoansi.dart';
+import 'package:quectocolors/quectocolors.dart';
 
 import '../command_result.dart';
 import '../config.dart';
@@ -52,7 +52,7 @@ Future<int> runBuildEnvShell({
           '[ Running ${command![0]} with engine build environment,\n'
           '  type `exit` to return to the normal shell ]\n',
           bold: true,
-          foregroundColor: Ansi8BitColor.blue,
+          foreground: QuectoColors.blue,
         ),
       );
   }
@@ -76,7 +76,7 @@ Future<int> runBuildEnvShell({
         terminal.format.color(
           '\n[ Returning from engine build shell ]',
           bold: true,
-          foregroundColor: Ansi8BitColor.blue,
+          foreground: QuectoColors.blue,
         ),
       );
   }

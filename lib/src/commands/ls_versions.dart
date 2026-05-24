@@ -1,8 +1,8 @@
 import 'dart:math';
 
 import 'package:clock/clock.dart';
-import 'package:neoansi/neoansi.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:quectocolors/quectocolors.dart';
 
 import '../command.dart';
 import '../command_result.dart';
@@ -100,13 +100,13 @@ class LsVersionsCommand extends PuroCommand {
           for (final release in releases)
             [
               'Flutter ${release.version}',
-              format.color(' | ', foregroundColor: Ansi8BitColor.grey),
+              format.color(' | ', foreground: QuectoColors.grey),
               DateTime.parse(
                 release.releaseDate,
               ).difference(now).pretty(before: '', abbr: true),
-              format.color(' | ', foregroundColor: Ansi8BitColor.grey),
+              format.color(' | ', foreground: QuectoColors.grey),
               release.hash.substring(0, 10),
-              format.color(' | ', foregroundColor: Ansi8BitColor.grey),
+              format.color(' | ', foreground: QuectoColors.grey),
               'Dart ${release.dartSdkVersion.split(' ').first}',
             ],
         ];

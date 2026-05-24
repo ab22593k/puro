@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:file/file.dart';
-import 'package:neoansi/neoansi.dart';
+import 'package:quectocolors/quectocolors.dart';
 
 import '../command_result.dart';
 import '../config.dart';
@@ -67,7 +67,7 @@ Future<CommandMessage?> detectExternalFlutterInstallations({
       (format) =>
           'Other Flutter or Dart installations detected\n'
           'Puro recommends removing the following from your PATH:\n'
-          '${offending.map((e) => '${format.color('*', bold: true, foregroundColor: Ansi8BitColor.red)} $e').join('\n')}',
+          '${offending.map((e) => '${format.color('*', bold: true, foreground: QuectoColors.red)} $e').join('\n')}',
       type: CompletionType.alert,
     );
   } else {

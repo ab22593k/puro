@@ -19,12 +19,12 @@ dependencies:
   json_annotation: ^4.12.0
   meta: ^1.8.0
   mutex: ^3.0.0
-  neoansi: ^0.3.2+1
   path: ^1.8.2
   petitparser: ^7.0.1
   process: ^5.0.0
   protobuf: ^6.0.0
   pub_semver: ^2.1.1
+  quectocolors: ^1.1.1
   rxdart: ^0.28.0
   stack_trace: ^1.10.0
   typed_data: ^1.3.1

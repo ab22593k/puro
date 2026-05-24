@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:http/http.dart';
-import 'package:neoansi/neoansi.dart';
+import 'package:quectocolors/quectocolors.dart';
 
 import 'git.dart';
 import 'logger.dart';
@@ -188,7 +188,7 @@ class ActiveProgressNode extends ProgressNode {
     }
     text = terminal.format.color(
       text,
-      foregroundColor: Ansi8BitColor.blue,
+      foreground: QuectoColors.blue,
       bold: true,
     );
     if (_description != null) {

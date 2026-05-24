@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:file/file.dart';
-import 'package:neoansi/neoansi.dart';
+import 'package:quectocolors/quectocolors.dart';
 
 import '../command_result.dart';
 import '../config.dart';
@@ -71,7 +71,7 @@ class ListEnvironmentResult extends CommandResult {
           resultLines.add(
             format.color(
               '* $name',
-              foregroundColor: Ansi8BitColor.green,
+              foreground: QuectoColors.green,
               bold: true,
             ),
           );
@@ -79,7 +79,7 @@ class ListEnvironmentResult extends CommandResult {
           resultLines.add(
             format.color(
               '~ $name',
-              foregroundColor: Ansi8BitColor.green,
+              foreground: QuectoColors.green,
               bold: true,
             ),
           );
@@ -107,7 +107,7 @@ class ListEnvironmentResult extends CommandResult {
           padRightColored(lines[i][0], linePadding) +
               format.color(
                 ' (${[if (results[i].environment.exists) results[i].version ?? 'unknown' else 'not installed', if (results[i].dartVersion != null && results[i].showDartVersion) 'Dart ${results[i].dartVersion}'].join(' / ')})',
-                foregroundColor: Ansi8BitColor.grey,
+                foreground: QuectoColors.grey,
               ),
           ...lines[i].skip(1),
         ],

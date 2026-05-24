@@ -1,25 +1,12 @@
 import 'dart:io';
 
-import 'package:neoansi/neoansi.dart';
+import 'package:quectocolors/quectocolors.dart';
 
 import 'debouncer.dart';
 import 'provider.dart';
 
-class _StripAnsiWriter extends AnsiListener {
-  final buffer = StringBuffer();
-
-  @override
-  void write(String text) {
-    buffer.write(text);
-  }
-}
-
 /// Removes all ANSI escape sequences from [str], returning only visible text.
-String stripAnsiEscapes(String str) {
-  final writer = _StripAnsiWriter();
-  AnsiReader(writer).read(str);
-  return '${writer.buffer}';
-}
+String stripAnsiEscapes(String str) => str.stripAnsi;
 
 /// Like [String.padLeft] but accounts for ANSI escapes so visible width matches [width].
 String padLeftColored(String str, int width, [String padding = ' ']) {
@@ -40,16 +27,24 @@ const colorFormatter = ColorOutputFormatter();
 ///
 /// States: [success], [failure], [info], [alert], [indeterminate], [plain].
 enum CompletionType {
-  plain('', null),
-  success('[\u2713] ', Ansi8BitColor.green),
-  failure('[x] ', Ansi8BitColor.red),
-  indeterminate('[~] ', Ansi8BitColor.purple),
-  info('[i] ', Ansi8BitColor.blue),
-  alert('[!] ', Ansi8BitColor.orange1);
+  plain(''),
+  success('[\u2713] '),
+  failure('[x] '),
+  indeterminate('[~] '),
+  info('[i] '),
+  alert('[!] ');
 
-  const CompletionType(this.prefix, this.color);
+  const CompletionType(this.prefix);
   final String prefix;
-  final Ansi8BitColor? color;
+
+  QuectoStyler get styler => switch (this) {
+    CompletionType.plain => (s) => s,
+    CompletionType.success => QuectoColors.green,
+    CompletionType.failure => QuectoColors.red,
+    CompletionType.indeterminate => QuectoColors.magenta,
+    CompletionType.info => QuectoColors.blue,
+    CompletionType.alert => QuectoColors.ansi256(208),
+  };
 
   static final fromName = {
     for (final value in CompletionType.values) value.name: value,
@@ -65,8 +60,8 @@ class OutputFormatter {
 
   String color(
     String content, {
-    Ansi8BitColor? foregroundColor,
-    Ansi8BitColor? backgroundColor,
+    QuectoStyler? foreground,
+    QuectoStyler? background,
     bool bold = false,
     bool underline = false,
   }) {
@@ -88,7 +83,7 @@ class OutputFormatter {
     CompletionType type = CompletionType.success,
   }) {
     return prefix(
-      color(type.prefix, foregroundColor: type.color, bold: true),
+      color(type.prefix, foreground: type.styler, bold: true),
       content,
     );
   }
@@ -99,7 +94,6 @@ class OutputFormatter {
   String info(String content) => complete(content, type: CompletionType.info);
 
   static const indeterminatePrefix = '[~]';
-  static const indeterminateColor = Ansi8BitColor.grey;
 }
 
 /// An [OutputFormatter] that renders colored output using ANSI escape sequences.
@@ -111,20 +105,17 @@ class ColorOutputFormatter extends OutputFormatter {
   @override
   String color(
     String content, {
-    Ansi8BitColor? foregroundColor,
-    Ansi8BitColor? backgroundColor,
+    QuectoStyler? foreground,
+    QuectoStyler? background,
     bool bold = false,
     bool underline = false,
   }) {
-    final buffer = StringBuffer();
-    final writer = AnsiWriter.from(buffer);
-    if (foregroundColor != null) writer.setForegroundColor8(foregroundColor);
-    if (backgroundColor != null) writer.setBackgroundColor8(backgroundColor);
-    if (bold) writer.setBold();
-    if (underline) writer.setUnderlined();
-    writer.write(content);
-    writer.resetStyles();
-    return '$buffer';
+    var result = content;
+    if (bold) result = QuectoColors.bold(result);
+    if (underline) result = QuectoColors.underline(result);
+    if (foreground != null) result = foreground(result);
+    if (background != null) result = background(result);
+    return result;
   }
 }
 

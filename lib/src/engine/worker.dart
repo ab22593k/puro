@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:neoansi/neoansi.dart';
 import 'package:process/process.dart';
+import 'package:quectocolors/quectocolors.dart';
 
 import '../command_result.dart';
 import '../config.dart';
@@ -249,7 +249,7 @@ Future<void> ensureWindowsPythonInstalled({required Scope scope}) async {
       (format) =>
           'Multiple installations of python found in your PATH\n'
           'If engine builds fail, try removing all but one:\n'
-          '${pythonPrograms.map((e) => '${format.color('*', bold: true, foregroundColor: Ansi8BitColor.red)} ${e.path}').join('\n')}',
+          '${pythonPrograms.map((e) => '${format.color('*', bold: true, foreground: QuectoColors.red)} ${e.path}').join('\n')}',
       type: CompletionType.alert,
     ).queue(scope);
   } else if (pythonPrograms.isEmpty) {

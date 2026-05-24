@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:meta/meta.dart';
-import 'package:neoansi/neoansi.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:quectocolors/quectocolors.dart';
 
 import '../../models.dart';
 import '../command_result.dart';
@@ -73,7 +73,7 @@ class FlutterVersion {
             (e) => format!.color(
               e,
               bold: true,
-              foregroundColor: Ansi8BitColor.green,
+              foreground: QuectoColors.green,
             ),
           )
           .join(' / ');
