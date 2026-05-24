@@ -319,23 +319,39 @@ Future<List<PsInfo>> getParentProcesses({required Scope scope}) async {
       pid = ppid;
     }
   } else {
+    final result = await runProcess(scope, 'ps', [
+      '-A',
+      '-o',
+      'pid=',
+      '-o',
+      'ppid=',
+      '-o',
+      'comm=',
+    ], debugLogging: false);
+    if (result.exitCode != 0) {
+      log.v('Failed to query process list (exit code ${result.exitCode})');
+      return [];
+    }
+    final processMap = <int, (int ppid, String name)>{};
+    for (final line in (result.stdout as String).split('\n')) {
+      final trimmed = line.trim();
+      if (trimmed.isEmpty) continue;
+      final parts = trimmed.split(RegExp(r'\s+'));
+      if (parts.length < 3) continue;
+      final pid = int.tryParse(parts[0]);
+      final ppid = int.tryParse(parts[1]);
+      final name = parts[2];
+      if (pid != null && ppid != null) {
+        processMap[pid] = (ppid, name);
+      }
+    }
     var pid = io.pid;
     for (;;) {
-      final result = await runProcess(scope, 'ps', [
-        '-o',
-        'ppid,command',
-        '-p',
-        '$pid',
-      ]);
-      if (result.exitCode != 0) break;
-      final resultMatch = RegExp(
-        r'^\s*(\d+)\s+(.+)$',
-      ).firstMatch((result.stdout as String).trim().split('\n').last);
-      if (resultMatch == null) break;
-      final ppid = int.tryParse(resultMatch.group(1) ?? '');
-      final name = resultMatch.group(2)?.split(' ').first.split('/').last;
-      if (ppid == null || name == null) break;
+      final entry = processMap[pid];
+      if (entry == null) break;
+      final (ppid, name) = entry;
       stack.add(PsInfo(pid, name));
+      if (pid == ppid) break;
       pid = ppid;
     }
   }
