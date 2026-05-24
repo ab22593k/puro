@@ -1,5 +1,7 @@
 # About
 
+[![test workflow](https://github.com/ab22593k/puro/actions/workflows/test.yml/badge.svg)](https://github.com/ab22593k/puro/actions/workflows/test.yml)
+
 Puro is a powerful tool for installing and upgrading [Flutter](https://flutter.dev/) versions, it is essential for any
 developers that work on multiple projects or have slower internet.
 
