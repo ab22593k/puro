@@ -60,28 +60,37 @@ class GitClient {
 
     unawaited(process.stdin.close());
 
+    final debug = _log.shouldLog(LogLevel.debug);
+
     final Future<dynamic> stdout;
     if (binary) {
       stdout = process.stdout.toBytes();
-    } else {
+    } else if (onStdout != null || debug) {
       stdout = const LineSplitter()
           .bind(systemEncoding.decoder.bind(process.stdout))
           .map((e) {
-            _log.d('git: $e');
+            if (debug) _log.d('git: $e');
             if (onStdout != null) onStdout(e);
             return e;
           })
           .join('\n');
+    } else {
+      stdout = process.stdout.drain<String>('');
     }
 
-    final stderr = const LineSplitter()
-        .bind(systemEncoding.decoder.bind(process.stderr))
-        .map((e) {
-          _log.d('git: $e');
-          if (onStderr != null) onStderr(e);
-          return e;
-        })
-        .join('\n');
+    final Future<dynamic> stderr;
+    if (onStderr != null || debug) {
+      stderr = const LineSplitter()
+          .bind(systemEncoding.decoder.bind(process.stderr))
+          .map((e) {
+            if (debug) _log.d('git: $e');
+            if (onStderr != null) onStderr(e);
+            return e;
+          })
+          .join('\n');
+    } else {
+      stderr = process.stderr.drain<String>('');
+    }
 
     final exitCode = await process.exitCode;
 
