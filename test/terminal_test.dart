@@ -1,8 +1,14 @@
 import 'package:checks/checks.dart';
 import 'package:puro/src/terminal.dart';
+import 'package:quectocolors/quectocolors.dart'
+    show ansiColorDisabled, ansiColorLevel, AnsiColorLevel;
 import 'package:test/test.dart';
 
 void main() {
+  setUpAll(() {
+    ansiColorDisabled = false;
+    ansiColorLevel = AnsiColorLevel.trueColor;
+  });
   group('stripAnsiEscapes', () {
     test('removes ANSI foreground color', () {
       check(stripAnsiEscapes('\x1b[38;5;1mhello\x1b[0m')).equals('hello');

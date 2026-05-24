@@ -1,0 +1,29 @@
+name: test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    container: fedora:latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install system deps
+        run: dnf install -y unzip curl
+      - name: Install Dart SDK
+        run: |
+          curl -fsSL https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-x64-release.zip -o /tmp/dart.zip
+          unzip -q /tmp/dart.zip -d /usr/local
+          ln -s /usr/local/dart-sdk/bin/dart /usr/local/bin/dart
+          dart --version
+      - name: dart pub get
+        run: dart pub get
+      - name: dart test
+        run: dart test
