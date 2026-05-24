@@ -194,6 +194,7 @@ Future<bool> downloadSharedEngine({
         url: engineZipUrl,
         file: zipFile,
         description: 'Downloading engine',
+        resume: true,
       );
     } on HttpException catch (e) {
       // Flutter versions older than 3.0.0 don't have builds for M1 chips but
@@ -210,6 +211,7 @@ Future<bool> downloadSharedEngine({
           url: engineZipUrl,
           file: zipFile,
           description: 'Downloading engine',
+          resume: true,
         );
       } else {
         rethrow;
